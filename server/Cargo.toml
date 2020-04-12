@@ -1,0 +1,24 @@
+[package]
+name = "fitb"
+version = "0.1.0"
+authors = ["Tomas Drtina <tomas.drtina@blindspot.ai>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix = "0.9.0"
+actix-files = "0.2.1"
+actix-rt = "1.1.0"
+actix-web = "2.0.0"
+actix-web-actors = "2.0.0"
+
+log = "0.4.8"
+env_logger = "0.7.1"
+
+serde = { version = "1.0.106", features = ["derive"] }
+serde_json = "1.0.51"
+
+uuid = { version = "0.8.1", features = ["serde", "v4"]}
+
+chrono = { version = "0.4.11", features = ["serde"] }
