@@ -55,3 +55,19 @@ impl Handler<GlobalChat> for WebSocket {
         ctx.text(serde_json::to_string(&msg).unwrap());
     }
 }
+
+#[derive(Message, Serialize)]
+#[serde(tag = "type")]
+#[rtype(result = "()")]
+pub struct Error {
+    pub timestamp: DateTime<Utc>,
+    pub text: String,
+}
+
+impl Handler<Error> for WebSocket {
+    type Result = ();
+
+    fn handle(&mut self, msg: Error, ctx: &mut Self::Context) -> Self::Result {
+        ctx.text(serde_json::to_string(&msg).unwrap());
+    }
+}

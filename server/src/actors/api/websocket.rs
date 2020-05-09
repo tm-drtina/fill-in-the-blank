@@ -13,7 +13,7 @@ use super::inbound_message;
 /// How often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
 /// How long before lack of client response causes a timeout
-const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
+const CLIENT_TIMEOUT: Duration = Duration::from_secs(30);
 
 #[derive(Deserialize, Debug)]
 #[serde(tag = "action")]
@@ -24,12 +24,14 @@ enum Message {
 }
 
 pub struct WebSocket {
-    /// Client must send ping at least once per 10 seconds (CLIENT_TIMEOUT),
+    /// Client must send ping at least once per 30 seconds (CLIENT_TIMEOUT),
     /// otherwise we drop connection.
     hb: Instant,
 
     pub(super) server: Addr<Server>,
     pub(super) player: Option<Addr<Player>>,
+
+    disconnect_reason: String,
 }
 
 impl Actor for WebSocket {
@@ -42,7 +44,9 @@ impl Actor for WebSocket {
 
     fn stopped(&mut self, _ctx: &mut Self::Context) {
         if let Some(player) = &self.player {
-            player.do_send(player::message::Disconnected {});
+            player.do_send(player::message::Disconnected {
+                reason: (&self.disconnect_reason).clone(),
+            });
         }
     }
 }
@@ -63,29 +67,42 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocket {
                 Err(_) => warn!("Unprocessable input '{}'", text),
             },
             Ok(ws::Message::Binary(_bin)) => warn!("Received binary data"),
-            Ok(ws::Message::Close(_)) => ctx.stop(),
+            Ok(ws::Message::Close(reason)) => {
+                if let Some(ws::CloseReason { code, description }) = reason {
+                    if let Some(description) = description {
+                        self.disconnect_reason = description
+                    } else if code == ws::CloseCode::Normal || code == ws::CloseCode::Away {
+                        self.disconnect_reason = "Disconnected.".to_string()
+                    }
+                }
+                ctx.stop();
+            }
             _ => ctx.stop(),
         }
     }
 }
 
 impl WebSocket {
-    pub fn new(server: Addr<Server>) -> Self {
+    pub(super) fn new(server: Addr<Server>) -> Self {
         Self {
             hb: Instant::now(),
             server,
             player: None,
+            disconnect_reason: "Unknown".to_string(),
         }
     }
 
-    /// helper method that sends ping to client every second.
-    /// also this method checks heartbeats from client
+    /// Helper method that sends ping to client every HEARTBEAT_INTERVAL.
+    /// Also this method checks heartbeats from client and disconnects unresponsive clients.
     fn hb(&self, ctx: &mut <Self as Actor>::Context) {
         ctx.run_interval(HEARTBEAT_INTERVAL, |act, ctx| {
             // check client heartbeats
             if Instant::now().duration_since(act.hb) > CLIENT_TIMEOUT {
-                info!("Websocket Client heartbeat failed, disconnecting!");
-                ctx.stop();
+                info!("Websocket client heartbeat failed, disconnecting!");
+                ctx.close(Some(ws::CloseReason {
+                    code: ws::CloseCode::Abnormal,
+                    description: Some("Timed out".to_string()),
+                }));
                 return;
             }
 
@@ -93,6 +110,7 @@ impl WebSocket {
         });
     }
 
+    /// Converts websocket messages to standard actix message.
     fn handle_message(&mut self, ctx: &mut <Self as Actor>::Context, message: Message) {
         debug!("Handling WS message: {:?}", message);
         match message {
