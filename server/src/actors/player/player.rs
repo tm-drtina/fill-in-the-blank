@@ -1,11 +1,12 @@
 use actix::{Actor, Addr, Context};
 use log::info;
 
-use crate::engine::{Server, WebSocket};
+use super::super::api::ApiClient;
+use super::super::server::Server;
 
 pub struct Player {
     pub server_addr: Addr<Server>,
-    pub websocket_addr: Option<Addr<WebSocket>>,
+    pub api_client: Option<Addr<ApiClient>>,
     pub username: String,
 }
 
@@ -25,7 +26,7 @@ impl Player {
     pub fn new(server_addr: Addr<Server>, username: String) -> Self {
         Player {
             server_addr,
-            websocket_addr: None,
+            api_client: None,
             username,
         }
     }

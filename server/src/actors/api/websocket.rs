@@ -5,8 +5,10 @@ use serde::Deserialize;
 use std::time::{Duration, Instant};
 use uuid::Uuid;
 
-use crate::engine::{server_message, Server};
-use crate::game::{player_message, Player};
+use super::super::player;
+use super::super::player::Player;
+use super::super::server::Server;
+use super::inbound_message;
 
 /// How often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
@@ -26,8 +28,8 @@ pub struct WebSocket {
     /// otherwise we drop connection.
     hb: Instant,
 
-    server_addr: Addr<Server>,
-    pub player_addr: Option<Addr<Player>>,
+    pub(super) server_addr: Addr<Server>,
+    pub(super) player_addr: Option<Addr<Player>>,
 }
 
 impl Actor for WebSocket {
@@ -40,7 +42,7 @@ impl Actor for WebSocket {
 
     fn stopped(&mut self, _ctx: &mut Self::Context) {
         if let Some(player_addr) = &self.player_addr {
-            player_addr.do_send(player_message::Disconnected {});
+            player_addr.do_send(player::message::Disconnected {});
         }
     }
 }
@@ -94,37 +96,15 @@ impl WebSocket {
     fn handle_message(&mut self, ctx: &mut <Self as Actor>::Context, message: Message) {
         debug!("Handling WS message: {:?}", message);
         match message {
-            Message::Reconnect { session_id: id } => self.handle_reconnect(ctx, id),
-            Message::Connect { username } => self.handle_connect(ctx, username),
-            Message::GlobalChat { message } => self.handle_global_chat(ctx, message),
-        }
-    }
-
-    fn handle_reconnect(&mut self, ctx: &mut <Self as Actor>::Context, session_id: Uuid) {
-        debug!(
-            "Handling Reconnect message with session id: {:?}",
-            session_id
-        );
-
-        self.server_addr.do_send(server_message::Reconnect {
-            websocket_addr: ctx.address(),
-            session_id,
-        })
-    }
-
-    fn handle_connect(&mut self, ctx: &mut <Self as Actor>::Context, username: String) {
-        debug!("Handling Connect message with username: {:?}", username);
-
-        self.server_addr.do_send(server_message::Connect {
-            username: username.clone(),
-            websocket_addr: ctx.address(),
-        });
-    }
-
-    fn handle_global_chat(&self, _ctx: &mut <Self as Actor>::Context, message: String) {
-        debug!("Handling GlobalChat message: {}", message);
-        if let Some(player_addr) = &self.player_addr {
-            player_addr.do_send(player_message::GlobalChat { message });
+            Message::Connect { username } => {
+                ctx.address().do_send(inbound_message::Connect { username })
+            }
+            Message::Reconnect { session_id } => ctx
+                .address()
+                .do_send(inbound_message::Reconnect { session_id }),
+            Message::GlobalChat { message } => ctx
+                .address()
+                .do_send(inbound_message::GlobalChat { message }),
         }
     }
 }
