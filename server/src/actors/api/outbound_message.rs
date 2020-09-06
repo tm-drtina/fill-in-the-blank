@@ -27,13 +27,13 @@ pub struct UserConnected {
     pub session_id: Uuid,
     pub username: String,
     #[serde(skip)]
-    pub player_addr: Addr<Player>,
+    pub player: Addr<Player>,
 }
 impl Handler<UserConnected> for WebSocket {
     type Result = ();
 
     fn handle(&mut self, msg: UserConnected, ctx: &mut Self::Context) -> Self::Result {
-        self.player_addr = Some(msg.player_addr.clone());
+        self.player = Some(msg.player.clone());
         ctx.text(serde_json::to_string(&msg).unwrap());
     }
 }

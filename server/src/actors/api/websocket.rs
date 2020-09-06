@@ -28,8 +28,8 @@ pub struct WebSocket {
     /// otherwise we drop connection.
     hb: Instant,
 
-    pub(super) server_addr: Addr<Server>,
-    pub(super) player_addr: Option<Addr<Player>>,
+    pub(super) server: Addr<Server>,
+    pub(super) player: Option<Addr<Player>>,
 }
 
 impl Actor for WebSocket {
@@ -41,8 +41,8 @@ impl Actor for WebSocket {
     }
 
     fn stopped(&mut self, _ctx: &mut Self::Context) {
-        if let Some(player_addr) = &self.player_addr {
-            player_addr.do_send(player::message::Disconnected {});
+        if let Some(player) = &self.player {
+            player.do_send(player::message::Disconnected {});
         }
     }
 }
@@ -70,11 +70,11 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocket {
 }
 
 impl WebSocket {
-    pub fn new(server_addr: Addr<Server>) -> Self {
+    pub fn new(server: Addr<Server>) -> Self {
         Self {
             hb: Instant::now(),
-            server_addr,
-            player_addr: None,
+            server,
+            player: None,
         }
     }
 

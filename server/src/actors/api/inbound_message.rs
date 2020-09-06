@@ -16,7 +16,7 @@ impl Handler<Connect> for WebSocket {
 
     fn handle(&mut self, msg: Connect, ctx: &mut Self::Context) -> Self::Result {
         debug!("Handling Connect message with username: {:?}", msg.username);
-        self.server_addr.do_send(server::message::Connect {
+        self.server.do_send(server::message::Connect {
             username: msg.username,
             api_client: ctx.address(),
         });
@@ -36,7 +36,7 @@ impl Handler<Reconnect> for WebSocket {
             "Handling Reconnect message with session id: {:?}",
             msg.session_id
         );
-        self.server_addr.do_send(server::message::Reconnect {
+        self.server.do_send(server::message::Reconnect {
             api_client: ctx.address(),
             session_id: msg.session_id,
         })
@@ -53,8 +53,8 @@ impl Handler<GlobalChat> for WebSocket {
 
     fn handle(&mut self, msg: GlobalChat, _ctx: &mut Self::Context) -> Self::Result {
         debug!("Handling GlobalChat message: {}", msg.message);
-        if let Some(player_addr) = &self.player_addr {
-            player_addr.do_send(player::message::SendGlobalChat {
+        if let Some(player) = &self.player {
+            player.do_send(player::message::SendGlobalChat {
                 message: msg.message,
             });
         }

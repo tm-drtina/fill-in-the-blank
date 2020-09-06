@@ -29,15 +29,14 @@ async fn main() -> std::io::Result<()> {
     let port = env_or_default("PORT", "8080");
     env_logger::init();
 
-    let server = server::Server::default();
-    let server_addr = server.start();
+    let server = server::Server::default().start();
 
     HttpServer::new(move || {
         App::new()
             // enable logger
             .wrap(middleware::Logger::default())
             // provide server address
-            .data(server_addr.clone())
+            .data(server.clone())
             // websocket route
             .service(web::resource("/ws").route(web::get().to(ws_index)))
             // static files

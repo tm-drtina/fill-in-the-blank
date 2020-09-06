@@ -8,6 +8,6 @@ mod websocket;
 pub mod outbound_message;
 pub use crate::api::websocket::WebSocket as ApiClient;
 
-pub fn create_ws_api(server_addr: Addr<Server>) -> ApiClient {
-    return websocket::WebSocket::new(server_addr);
+pub fn create_ws_api(server: Addr<Server>) -> ApiClient {
+    return websocket::WebSocket::new(server);
 }

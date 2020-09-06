@@ -24,7 +24,7 @@ impl Handler<Connected> for Player {
                 .do_send(api::outbound_message::UserConnected {
                     session_id: msg.session_id,
                     username: self.username.clone(),
-                    player_addr: ctx.address(),
+                    player: ctx.address(),
                 });
         } else {
             msg.api_client
@@ -58,13 +58,12 @@ impl Handler<SendGlobalChat> for Player {
     type Result = ();
 
     fn handle(&mut self, msg: SendGlobalChat, _ctx: &mut Context<Self>) -> Self::Result {
-        self.server_addr
-            .do_send(server::message::GlobalChatBroadcast {
-                timestamp: Utc::now(),
-                system_msg: false,
-                username: self.username.clone(),
-                message: msg.message,
-            })
+        self.server.do_send(server::message::GlobalChatBroadcast {
+            timestamp: Utc::now(),
+            system_msg: false,
+            username: self.username.clone(),
+            message: msg.message,
+        })
     }
 }
 

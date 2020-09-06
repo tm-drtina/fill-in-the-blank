@@ -19,14 +19,13 @@ impl Handler<Connect> for Server {
 
     fn handle(&mut self, msg: Connect, ctx: &mut Context<Self>) -> Self::Result {
         let session_id = Uuid::new_v4();
-        let player = Player::new(ctx.address(), msg.username);
-        let player_addr = player.start();
+        let player = Player::new(ctx.address(), msg.username).start();
 
-        player_addr.do_send(player::message::Connected {
+        player.do_send(player::message::Connected {
             api_client: msg.api_client,
             session_id,
         });
-        self.players.insert(session_id, player_addr);
+        self.players.insert(session_id, player);
     }
 }
 
@@ -43,8 +42,8 @@ impl Handler<Reconnect> for Server {
     fn handle(&mut self, msg: Reconnect, _ctx: &mut Context<Self>) -> Self::Result {
         let player_info = self.players.get(&msg.session_id);
         match player_info {
-            Some(player_addr) => {
-                player_addr.do_send(player::message::Connected {
+            Some(player) => {
+                player.do_send(player::message::Connected {
                     api_client: msg.api_client,
                     session_id: msg.session_id,
                 });
@@ -71,8 +70,8 @@ impl Handler<GlobalChatBroadcast> for Server {
     type Result = ();
 
     fn handle(&mut self, msg: GlobalChatBroadcast, _ctx: &mut Context<Self>) -> Self::Result {
-        for player_addr in self.players.values() {
-            player_addr.do_send(player::message::ReceiveGlobalChat {
+        for player in self.players.values() {
+            player.do_send(player::message::ReceiveGlobalChat {
                 timestamp: msg.timestamp,
                 system_msg: msg.system_msg,
                 username: msg.username.clone(),
