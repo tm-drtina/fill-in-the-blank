@@ -8,9 +8,14 @@ use super::super::player::Player;
 //     addr: Addr<Game>,
 // }
 
+pub(super) struct PlayerInfo {
+    pub addr: Addr<Player>,
+    pub username: String,
+}
+
 #[derive(Default)]
 pub struct Server {
-    pub players: HashMap<Uuid, Addr<Player>>,
+    pub(super) players: HashMap<Uuid, PlayerInfo>,
     // pub games: HashMap<String, GameInfo>,
 }
 
