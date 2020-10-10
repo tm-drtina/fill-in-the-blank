@@ -1,17 +1,17 @@
 # Build server
-FROM rust:1.42 as build-server
+FROM rust:1.47 as build-server
 WORKDIR /app
 
 COPY ./server /app
-RUN cargo build --release
+RUN cargo build --release --locked
 
 
 # Build client
-FROM node:13.12 as build-client
+FROM node:14.13 as build-client
 WORKDIR /client
 
 COPY ./client/package.json ./client/yarn.lock /client/
-RUN yarn install
+RUN yarn install --frozen-lockfile
 
 COPY ./client/ /client/
 RUN yarn build
