@@ -1,5 +1,5 @@
 import { Action, action, thunk, Thunk } from 'easy-peasy';
-import { setItem, USER_SESSION_UUID_KEY } from '../../utils/storage';
+import { removeItem, setItem, USER_SESSION_UUID_KEY } from '../../utils/storage';
 import { storeModel } from '../index';
 import { ConnectionFailed, GlobalChat, MessageTypes, UserConnected } from './messages';
 
@@ -40,7 +40,8 @@ const websocket: IWebSocketModel = {
     }
   }),
   onConnectionFailed: thunk((actions, payload) => {
-    // TODO
+    // TODO: do appropriate action based on response instead of just forgetting old session id
+    removeItem(USER_SESSION_UUID_KEY);
   }),
   onUserConnected: thunk((actions, payload, { getStoreActions }) => {
     const { user } = getStoreActions();
