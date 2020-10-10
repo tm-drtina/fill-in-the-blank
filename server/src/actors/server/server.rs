@@ -2,7 +2,7 @@ use actix::{Actor, Addr, Context};
 use std::collections::HashMap;
 use uuid::Uuid;
 
-use crate::game::Player;
+use super::super::player::Player;
 
 // pub struct GameInfo {
 //     addr: Addr<Game>,

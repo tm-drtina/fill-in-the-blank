@@ -3,15 +3,15 @@ use actix_files as fs;
 use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
 
-mod engine;
-mod game;
+mod actors;
+use actors::*;
 
 async fn ws_index(
     r: HttpRequest,
     stream: web::Payload,
-    data: web::Data<Addr<engine::Server>>,
+    data: web::Data<Addr<server::Server>>,
 ) -> Result<HttpResponse, Error> {
-    ws::start(engine::WebSocket::new(data.get_ref().clone()), &r, stream)
+    ws::start(api::create_ws_api(data.get_ref().clone()), &r, stream)
 }
 
 fn env_or_default(env_name: &str, default: &str) -> String {
@@ -29,15 +29,14 @@ async fn main() -> std::io::Result<()> {
     let port = env_or_default("PORT", "8080");
     env_logger::init();
 
-    let server = engine::Server::default();
-    let server_addr = server.start();
+    let server = server::Server::default().start();
 
     HttpServer::new(move || {
         App::new()
             // enable logger
             .wrap(middleware::Logger::default())
             // provide server address
-            .data(server_addr.clone())
+            .data(server.clone())
             // websocket route
             .service(web::resource("/ws").route(web::get().to(ws_index)))
             // static files
