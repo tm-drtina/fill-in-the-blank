@@ -1,5 +1,5 @@
 use actix::{Actor, Addr, AsyncContext, Context, Handler, Message};
-use log::debug;
+use log::{debug, warn};
 use uuid::Uuid;
 
 use super::super::api::{outbound_message, ApiClient};
@@ -7,7 +7,7 @@ use super::super::player;
 use super::super::player::Player;
 use super::{PlayerInfo, Server};
 use chrono::{DateTime, Utc};
-use std::collections::hash_map::{Entry, OccupiedEntry};
+use std::collections::hash_map::Entry;
 
 #[derive(Message)]
 #[rtype(result = "()")]
