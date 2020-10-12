@@ -51,7 +51,7 @@ jobs:
 
           # Strip "v" prefix from tag name
           # [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-          [[ "master" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          VERSION=$(echo $VERSION | sed -e 's/^v//')
 
           match_or_default() { echo '$1' | sed -En "/$2/,\${s//\1/;b};\${s/.*//;q1}" || echo $3; }
           MAJOR_VERSION=$(match_or_default "$VERSION" '([0-9]+).*' '0')
