@@ -31,7 +31,7 @@ jobs:
   # See also https://docs.docker.com/docker-hub/builds/
   build-and-push:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    # if: github.event_name == 'push'
 
     steps:
       - uses: actions/checkout@v2
@@ -46,10 +46,12 @@ jobs:
         name: Parse semver
         run: |
           # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          VERSION="master"
 
           # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          [[ "master" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
           match_or_default() { echo '$1' | sed -En "/$2/,\${s//\1/;b};\${s/.*//;q1}" || echo $3; }
           MAJOR_VERSION=$(match_or_default "$VERSION" '([0-9]+).*' '0')
