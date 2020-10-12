@@ -101,14 +101,14 @@ jobs:
             TAG="${{ steps.latest_major.outputs.tag }}"
             LATEST_MAJOR=$(match_or_default "$TAG" 'v([0-9]+).*' '0')
           else
-            LATEST_MAJOR='1'
+            LATEST_MAJOR='2'
           fi
 
           if [[ ${{ steps.latest_minor.outcome }} == "success" ]]; then
             TAG="${{ steps.latest_minor.outputs.tag }}"
             LATEST_MINOR=$(match_or_default "$TAG" 'v[0-9]+\.([0-9]+).*' '0')
           else
-            LATEST_MINOR='3'
+            LATEST_MINOR='1'
           fi
 
           if [[ "$VERSION" == "master" ]]; then
