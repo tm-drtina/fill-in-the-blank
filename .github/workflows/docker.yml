@@ -115,7 +115,7 @@ jobs:
             TAGS+=("dev" "dev-${{ github.run_id }}")
           else
             TAGS+=("v$VERSION" "v$VERSION-${{ github.run_id }}")
-            if [[ -z "$DIRTY_FLAG" ]]
+            if [[ -z "$DIRTY_FLAG" ]]; then
               TAGS+=("v${MAJOR_VERSION}.${MINOR_VERSION}")
               if [[ "$MINOR_VERSION" -ge "$LATEST_MINOR" ]]; then
                 TAGS+=("v${MAJOR_VERSION}")
