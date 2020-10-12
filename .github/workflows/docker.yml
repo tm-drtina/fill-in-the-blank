@@ -65,6 +65,12 @@ jobs:
           echo "::set-output name=patch::$PATCH_VERSION"
           echo "::set-output name=dirty_flag::$DIRTY_FLAG"
 
+          echo "::debug::version=$VERSION"
+          echo "::debug::major=$MAJOR_VERSION"
+          echo "::debug::minor=$MINOR_VERSION"
+          echo "::debug::patch=$PATCH_VERSION"
+          echo "::debug::dirty_flag=$DIRTY_FLAG"
+
       - uses: oprypin/find-latest-tag@v1
         with:
           repository: ${{ github.repository }}
@@ -94,6 +100,12 @@ jobs:
           MINOR_VERSION="${{ steps.parse_version.outputs.minor }}"
           PATCH_VERSION="${{ steps.parse_version.outputs.patch }}"
           DIRTY_FLAG="${{ steps.parse_version.outputs.dirty_flag }}"
+
+          echo "::debug::version=$VERSION"
+          echo "::debug::major=$MAJOR_VERSION"
+          echo "::debug::minor=$MINOR_VERSION"
+          echo "::debug::patch=$PATCH_VERSION"
+          echo "::debug::dirty_flag=$DIRTY_FLAG"
 
           match_or_default() { echo '$1' | sed -En "/$2/,\${s//\1/;b};\${s/.*//;q1}" || echo $3; }
 
