@@ -75,7 +75,7 @@ jobs:
           repository: ${{ github.repository }}
           releases-only: true
           sort-tags: true
-          prefix: "v${{ steps.parse_version.major }}."
+          prefix: "v${{ steps.parse_version.outputs.major }}."
         id: latest_minor
         continue-on-error: true
 
