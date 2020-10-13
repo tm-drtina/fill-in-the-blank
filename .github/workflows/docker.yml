@@ -1,0 +1,140 @@
+name: Docker
+
+on:
+  push:
+    # Publish `master` as Docker `dev` image.
+    branches:
+      - master
+
+    # Publish `v1.2.3` tags as releases.
+    tags:
+      - v*
+
+  # Build Docker image for any PRs to ensure everything compiles
+  pull_request:
+
+env:
+  IMAGE_NAME: fitb
+
+jobs:
+  build-only:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build image
+        run: docker build . --file Dockerfile --tag $IMAGE_NAME
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build image
+        run: docker build . --file Dockerfile --tag $IMAGE_NAME
+
+      - name: Log into GitHub Container Registry
+        run: echo "${{ secrets.CR_PAT }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - id: parse_version
+        name: Parse semver
+        run: |
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+
+          match_or_default() { echo "$1" | sed -E "/$2/,\${s//\1/;b};\${s/.*//;q1}" || echo $3; }
+          MAJOR_VERSION=$(match_or_default "$VERSION" '([0-9]+).*' '0')
+          MINOR_VERSION=$(match_or_default "$VERSION" '[0-9]+\.([0-9]+).*' '0')
+          PATCH_VERSION=$(match_or_default "$VERSION" '[0-9]+\.[0-9]+\.([0-9]+).*' '0')
+          DIRTY_FLAG=$(match_or_default "$VERSION" '[0-9]+\.[0-9]+\.[0-9]+(.*)' '')
+
+          echo "::set-output name=version::$VERSION"
+          echo "::set-output name=major::$MAJOR_VERSION"
+          echo "::set-output name=minor::$MINOR_VERSION"
+          echo "::set-output name=patch::$PATCH_VERSION"
+          echo "::set-output name=dirty_flag::$DIRTY_FLAG"
+
+      - uses: oprypin/find-latest-tag@v1
+        with:
+          repository: ${{ github.repository }}
+          releases-only: true
+          sort-tags: true
+          prefix: 'v'
+        id: latest_major
+        continue-on-error: true
+
+      - uses: oprypin/find-latest-tag@v1
+        with:
+          repository: ${{ github.repository }}
+          releases-only: true
+          sort-tags: true
+          prefix: "v${{ steps.parse_version.major }}."
+        id: latest_minor
+        continue-on-error: true
+
+
+      - id: prepare_tags
+        name: Prepare Docker tags from semver
+        run: |
+          TAGS=()
+
+          VERSION="${{ steps.parse_version.outputs.version }}"
+          MAJOR_VERSION="${{ steps.parse_version.outputs.major }}"
+          MINOR_VERSION="${{ steps.parse_version.outputs.minor }}"
+          PATCH_VERSION="${{ steps.parse_version.outputs.patch }}"
+          DIRTY_FLAG="${{ steps.parse_version.outputs.dirty_flag }}"
+
+          match_or_default() { echo "$1" | sed -E "/$2/,\${s//\1/;b};\${s/.*//;q1}" || echo $3; }
+
+          if [[ ${{ steps.latest_major.outcome }} == "success" ]]; then
+            TAG="${{ steps.latest_major.outputs.tag }}"
+            LATEST_MAJOR=$(match_or_default "$TAG" 'v([0-9]+).*' '0')
+          else
+            LATEST_MAJOR='0'
+          fi
+
+          if [[ ${{ steps.latest_minor.outcome }} == "success" ]]; then
+            TAG="${{ steps.latest_minor.outputs.tag }}"
+            LATEST_MINOR=$(match_or_default "$TAG" 'v[0-9]+\.([0-9]+).*' '0')
+          else
+            LATEST_MINOR='0'
+          fi
+
+          if [[ "$VERSION" == "master" ]]; then
+            TAGS+=("dev" "dev-${{ github.run_id }}")
+          else
+            TAGS+=("v$VERSION" "v$VERSION-${{ github.run_id }}")
+            if [[ -z "$DIRTY_FLAG" ]]; then
+              TAGS+=("v${MAJOR_VERSION}.${MINOR_VERSION}")
+              if [[ "$MINOR_VERSION" -ge "$LATEST_MINOR" ]]; then
+                TAGS+=("v${MAJOR_VERSION}")
+                if [[ "$MAJOR_VERSION" -ge "$LATEST_MAJOR" ]]; then
+                  TAGS+=("latest")
+                fi
+              fi
+            fi
+          fi
+
+          echo "::set-output name=tags::${TAGS[@]}"
+
+
+      - name: Push image to GitHub Container Registry
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          TAGS=(${{ steps.prepare_tags.outputs.tags }})
+
+          for tag in "${TAGS[@]}"; do
+            docker tag $IMAGE_NAME $IMAGE_ID:$tag
+            docker push $IMAGE_ID:$tag
+          done
