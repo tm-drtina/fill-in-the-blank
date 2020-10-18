@@ -49,7 +49,7 @@ jobs:
           # Strip "v" prefix from tag name
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
-          match_or_default() { echo "$1" | sed -E "/$2/,\${s//\1/;b};\${s/.*//;q1}" || echo $3; }
+          match_or_default() { echo "$1" | sed -E "/$2/,\${s//\1/;b};\${s/.*/$3/}"; }
           MAJOR_VERSION=$(match_or_default "$VERSION" '([0-9]+).*' '0')
           MINOR_VERSION=$(match_or_default "$VERSION" '[0-9]+\.([0-9]+).*' '0')
           PATCH_VERSION=$(match_or_default "$VERSION" '[0-9]+\.[0-9]+\.([0-9]+).*' '0')
@@ -79,7 +79,6 @@ jobs:
         id: latest_minor
         continue-on-error: true
 
-
       - id: prepare_tags
         name: Prepare Docker tags from semver
         run: |
@@ -91,7 +90,7 @@ jobs:
           PATCH_VERSION="${{ steps.parse_version.outputs.patch }}"
           DIRTY_FLAG="${{ steps.parse_version.outputs.dirty_flag }}"
 
-          match_or_default() { echo "$1" | sed -E "/$2/,\${s//\1/;b};\${s/.*//;q1}" || echo $3; }
+          match_or_default() { echo "$1" | sed -E "/$2/,\${s//\1/;b};\${s/.*/$3/}"; }
 
           if [[ ${{ steps.latest_major.outcome }} == "success" ]]; then
             TAG="${{ steps.latest_major.outputs.tag }}"
