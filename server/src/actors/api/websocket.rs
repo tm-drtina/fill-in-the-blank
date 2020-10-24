@@ -5,8 +5,7 @@ use serde::Deserialize;
 use std::time::{Duration, Instant};
 use uuid::Uuid;
 
-use super::super::player;
-use super::super::player::Player;
+use super::super::player::{message as player_msg, Player};
 use super::super::server::Server;
 use super::inbound_message;
 
@@ -44,7 +43,7 @@ impl Actor for WebSocket {
 
     fn stopped(&mut self, _ctx: &mut Self::Context) {
         if let Some(player) = &self.player {
-            player.do_send(player::message::Disconnected {
+            player.do_send(player_msg::Disconnected {
                 reason: (&self.disconnect_reason).clone(),
             });
         }
