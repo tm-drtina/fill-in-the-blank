@@ -4,8 +4,7 @@ use std::time::{Duration, Instant};
 use uuid::Uuid;
 
 use super::super::api::ApiClient;
-use super::super::server;
-use super::super::server::Server;
+use super::super::server::{message as server_msg, Server};
 
 const PLAYER_TIMEOUT_CHECK_INTERVAL: Duration = Duration::from_secs(30);
 const PLAYER_TIMEOUT: Duration = Duration::from_secs(5 * 60);
@@ -17,10 +16,10 @@ pub enum PlayerStatus {
 }
 
 pub struct Player {
-    pub server: Addr<Server>,
-    pub session_id: Uuid,
-    pub username: String,
-    pub status: PlayerStatus,
+    pub(super) server: Addr<Server>,
+    pub(super) session_id: Uuid,
+    pub(super) username: String,
+    pub(super) status: PlayerStatus,
 }
 
 impl Actor for Player {
@@ -46,7 +45,7 @@ impl Player {
             if let PlayerStatus::LostConnection { last_seen } = act.status {
                 if Instant::now().duration_since(last_seen) > PLAYER_TIMEOUT {
                     info!("Player {} timed out.", act.username);
-                    act.server.do_send(server::message::DestroySession {
+                    act.server.do_send(server_msg::DestroySession {
                         session_id: act.session_id,
                     });
                     ctx.stop();

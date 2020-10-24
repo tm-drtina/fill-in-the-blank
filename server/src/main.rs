@@ -9,9 +9,9 @@ use actors::*;
 async fn ws_index(
     r: HttpRequest,
     stream: web::Payload,
-    data: web::Data<Addr<server::Server>>,
+    data: web::Data<Addr<Server>>,
 ) -> Result<HttpResponse, Error> {
-    ws::start(api::create_ws_api(data.get_ref().clone()), &r, stream)
+    ws::start(create_ws_api(data.get_ref().clone()), &r, stream)
 }
 
 fn env_or_default(env_name: &str, default: &str) -> String {
@@ -29,7 +29,7 @@ async fn main() -> std::io::Result<()> {
     let port = env_or_default("PORT", "8080");
     env_logger::init();
 
-    let server = server::Server::default().start();
+    let server = Server::default().start();
 
     HttpServer::new(move || {
         App::new()
