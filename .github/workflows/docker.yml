@@ -107,9 +107,9 @@ jobs:
           fi
 
           if [[ "$VERSION" == "master" ]]; then
-            TAGS+=("dev-${{ github.run_id }}" "dev")
+            TAGS+=("dev")
           else
-            TAGS+=("v$VERSION-${{ github.run_id }}" "v$VERSION")
+            TAGS+=("v$VERSION")
             if [[ -z "$DIRTY_FLAG" ]]; then
               TAGS+=("v${MAJOR_VERSION}.${MINOR_VERSION}")
               if [[ "$MINOR_VERSION" -ge "$LATEST_MINOR" ]]; then
