@@ -20,6 +20,9 @@ enum Message {
     Reconnect { session_id: Uuid },
     Connect { username: String },
     GlobalChat { message: String },
+    CreateLobby { name: String },
+    JoinLobby { lobby_id: Uuid },
+    LobbyChat { message: String },
 }
 
 pub struct WebSocket {
@@ -113,15 +116,24 @@ impl WebSocket {
     fn handle_message(&mut self, ctx: &mut <Self as Actor>::Context, message: Message) {
         debug!("Handling WS message: {:?}", message);
         match message {
-            Message::Connect { username } => {
-                ctx.address().do_send(inbound_message::Connect { username })
-            }
+            Message::Connect { username } => ctx
+                .address()
+                .do_send(inbound_message::Connect { username }),
             Message::Reconnect { session_id } => ctx
                 .address()
                 .do_send(inbound_message::Reconnect { session_id }),
             Message::GlobalChat { message } => ctx
                 .address()
                 .do_send(inbound_message::GlobalChat { message }),
+            Message::CreateLobby { name } => ctx
+                .address()
+                .do_send(inbound_message::CreateLobby { name }),
+            Message::JoinLobby { lobby_id } => ctx
+                .address()
+                .do_send(inbound_message::JoinLobby { lobby_id }),
+            Message::LobbyChat { message } => ctx
+                .address()
+                .do_send(inbound_message::LobbyChat { message }),
         }
     }
 }

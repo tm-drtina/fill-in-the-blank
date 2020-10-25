@@ -23,12 +23,7 @@ impl Handler<Connect> for Server {
         player.do_send(player::message::Connected {
             api_client: msg.api_client,
         });
-        self.players.insert(
-            session_id,
-            PlayerInfo {
-                addr: player,
-                username: msg.username,
-            },
-        );
+        self.players
+            .insert(session_id, PlayerInfo::new(player, msg.username));
     }
 }
