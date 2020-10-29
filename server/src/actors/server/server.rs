@@ -1,10 +1,11 @@
-use actix::{Actor, Addr, Context};
+use actix::{Actor, Addr, Context, Handler, Message};
 use chrono::Utc;
 use log::error;
 use std::collections::HashMap;
 use uuid::Uuid;
 
 use super::super::player::{message as player_msg, Player};
+use crate::actors::dtos::LobbyOverview;
 
 pub(super) struct LobbyInfo {
     pub name: String,
@@ -24,12 +25,11 @@ pub struct Server {
 }
 
 impl Server {
-    pub(super) fn broadcast_lobby_info(&self, lobby_id: Uuid) {
+    pub(super) fn get_lobby_info_msg(&self, lobby_id: Uuid) -> Option<player_msg::LobbyInfo> {
         let lobby_info = match self.lobbies.get(&lobby_id) {
             Some(info) => info,
             None => {
-                error!("Lobby '{}' not found", lobby_id);
-                return;
+                return None;
             }
         };
         let mut players: Vec<&PlayerInfo> = Vec::new();
@@ -45,21 +45,33 @@ impl Server {
             };
         }
 
-        let lobby_info_msg = player_msg::LobbyInfo {
+        Some(player_msg::LobbyInfo {
             lobby_id,
             name: lobby_info.name.clone(),
             players: (&players)
                 .into_iter()
                 .map(|player| player.username.clone())
                 .collect(),
-        };
-
-        for player in players {
-            player.addr.do_send(lobby_info_msg.clone());
-        }
+        })
     }
 
-    fn broadcast_lobby_message(&self, lobby_id: Uuid, player_msg: player_msg::ReceiveLobbyChat) {
+    pub(super) fn get_lobby_overviews(&self) -> Vec<LobbyOverview> {
+        self.lobbies
+            .iter()
+            .map(|(lobby_id, lobby_info)| LobbyOverview {
+                lobby_id: *lobby_id,
+                name: lobby_info.name.clone(),
+                player_count: lobby_info.players.len() as u8,
+            })
+            .collect()
+    }
+
+    pub(super) fn broadcast_message_to_lobby<M>(&self, lobby_id: Uuid, msg: M)
+    where
+        M: Message + Send + Clone + 'static,
+        M::Result: Send,
+        Player: Handler<M>,
+    {
         let lobby_info = match self.lobbies.get(&lobby_id) {
             Some(info) => info,
             None => {
@@ -71,7 +83,7 @@ impl Server {
         for player_id in &lobby_info.players {
             match self.players.get(player_id) {
                 Some(player_info) => {
-                    player_info.addr.do_send(player_msg.clone());
+                    player_info.addr.do_send(msg.clone());
                 }
                 None => {
                     error!("Player session '{}' not found", player_id);
@@ -81,7 +93,7 @@ impl Server {
     }
 
     pub(super) fn broadcast_lobby_system_message(&self, lobby_id: Uuid, message: String) {
-        self.broadcast_lobby_message(
+        self.broadcast_message_to_lobby(
             lobby_id,
             player_msg::ReceiveLobbyChat {
                 timestamp: Utc::now(),
@@ -92,23 +104,22 @@ impl Server {
         );
     }
 
-    pub(super) fn broadcast_lobby_user_message(
-        &self,
-        player_id: Uuid,
-        message: String,
-    ) {
+    pub(super) fn broadcast_lobby_user_message(&self, player_id: Uuid, message: String) {
         let player_info = match self.players.get(&player_id) {
             Some(player_info) => player_info,
             None => {
                 error!("Player session '{}' not found", player_id);
-                return
+                return;
             }
         };
         if player_info.current_lobby.is_none() {
-            error!("Player '{}' is not in lobby. Cannot send lobby chat message", player_id);
-            return
+            error!(
+                "Player '{}' is not in lobby. Cannot send lobby chat message",
+                player_id
+            );
+            return;
         }
-        self.broadcast_lobby_message(
+        self.broadcast_message_to_lobby(
             player_info.current_lobby.unwrap(),
             player_msg::ReceiveLobbyChat {
                 timestamp: Utc::now(),

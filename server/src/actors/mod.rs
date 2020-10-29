@@ -1,4 +1,5 @@
 mod api;
+mod dtos;
 mod game;
 mod player;
 mod server;

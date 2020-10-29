@@ -20,6 +20,7 @@
 <a href="#" id="msg_reconnect">Reconnect</a>
 <a href="#" id="msg_global_chat">Global chat</a>
 <a href="#" id="msg_create_lobby">Create lobby</a>
+<a href="#" id="msg_list_lobbies">List lobbies</a>
 <a href="#" id="msg_join_lobby">Join lobby</a>
 <a href="#" id="msg_lobby_chat">Lobby chat</a>
 
@@ -63,6 +64,10 @@
     document.getElementById("msg_create_lobby").addEventListener("click", ev => {
         ev.preventDefault();
         text.value = '{\n    "action": "CreateLobby",\n    "name": ""\n}';
+    });
+    document.getElementById("msg_list_lobbies").addEventListener("click", ev => {
+        ev.preventDefault();
+        text.value = '{\n    "action": "ListLobbies"\n}';
     });
     document.getElementById("msg_join_lobby").addEventListener("click", ev => {
         ev.preventDefault();

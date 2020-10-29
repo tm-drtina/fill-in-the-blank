@@ -43,7 +43,8 @@ impl Handler<JoinLobby> for Server {
         });
         let lobby_message = format!("User '{}' joined the lobby.", player_info.username);
 
-        self.broadcast_lobby_info(msg.lobby_id);
+        let lobby_info_msg = self.get_lobby_info_msg(msg.lobby_id).unwrap();
+        self.broadcast_message_to_lobby(msg.lobby_id, lobby_info_msg);
         self.broadcast_lobby_system_message(msg.lobby_id, lobby_message);
     }
 }
