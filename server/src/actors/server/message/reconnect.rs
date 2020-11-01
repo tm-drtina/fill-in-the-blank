@@ -1,7 +1,8 @@
 use actix::{Addr, Context, Handler, Message};
 use uuid::Uuid;
 
-use super::super::super::api::{message as api_msg, ApiClient};
+use super::super::super::api::ApiClient;
+use super::super::super::messages;
 use super::super::super::player::message as player_msg;
 use super::super::Server;
 
@@ -21,9 +22,10 @@ impl Handler<Reconnect> for Server {
             Some(player) => player.addr.do_send(player_msg::Connected {
                 api_client: msg.api_client,
             }),
-            None => msg.api_client.do_send(api_msg::ConnectionFailed {
-                reason: "Session not found".to_string(),
-            }),
+            None => msg.api_client.do_send(messages::Error::new(
+                messages::ErrorType::SessionNotFound,
+                "Previous session not found",
+            )),
         }
     }
 }

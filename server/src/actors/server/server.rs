@@ -5,8 +5,9 @@ use std::collections::HashMap;
 use uuid::Uuid;
 
 use super::super::player::{message as player_msg, Player};
-use crate::actors::dtos::LobbyOverview;
+use crate::actors::messages::LobbyOverview;
 
+#[derive(Debug)]
 pub(super) struct LobbyInfo {
     pub name: String,
     pub players: Vec<Uuid>,
@@ -66,7 +67,7 @@ impl Server {
             .collect()
     }
 
-    pub(super) fn broadcast_message_to_lobby<M>(&self, lobby_id: Uuid, msg: M)
+    pub(super) fn broadcast_message_to_lobby_players<M>(&self, lobby_id: Uuid, msg: M)
     where
         M: Message + Send + Clone + 'static,
         M::Result: Send,
@@ -92,8 +93,21 @@ impl Server {
         }
     }
 
+    pub(super) fn broadcast_message_to_non_lobby_players<M>(&self, msg: M)
+    where
+        M: Message + Send + Clone + 'static,
+        M::Result: Send,
+        Player: Handler<M>,
+    {
+        for (_, player_info) in &self.players {
+            if player_info.current_lobby.is_none() {
+                player_info.addr.do_send(msg.clone());
+            }
+        }
+    }
+
     pub(super) fn broadcast_lobby_system_message(&self, lobby_id: Uuid, message: String) {
-        self.broadcast_message_to_lobby(
+        self.broadcast_message_to_lobby_players(
             lobby_id,
             player_msg::ReceiveLobbyChat {
                 timestamp: Utc::now(),
@@ -119,7 +133,7 @@ impl Server {
             );
             return;
         }
-        self.broadcast_message_to_lobby(
+        self.broadcast_message_to_lobby_players(
             player_info.current_lobby.unwrap(),
             player_msg::ReceiveLobbyChat {
                 timestamp: Utc::now(),

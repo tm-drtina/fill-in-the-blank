@@ -4,17 +4,29 @@ export interface Message {
   username: string,
   timestamp: string,
   content: string,
+  systemMsg: boolean,
 }
 
-export interface IUserModel {
+export interface IChatModel {
   global: Message[]
-  addGlobalMessage: Action<IUserModel, Message>
+  addGlobalMessage: Action<IChatModel, Message>
+  lobby: Message[]
+  addLobbyMessage: Action<IChatModel, Message>
+  reset: Action<IChatModel>
 }
 
-const chat: IUserModel = {
+const chat: IChatModel = {
   global: [],
   addGlobalMessage: action((state, value) => {
     state.global.push(value)
+  }),
+  lobby: [],
+  addLobbyMessage: action((state, value) => {
+    state.lobby.push(value)
+  }),
+  reset: action((state) => {
+    state.global = []
+    state.lobby = []
   }),
 }
 

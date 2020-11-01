@@ -7,22 +7,20 @@ use super::super::WebSocket;
 
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct CreateLobby {
-    pub name: String,
-}
+pub struct LeaveLobby;
 
-impl Handler<CreateLobby> for WebSocket {
+impl Handler<LeaveLobby> for WebSocket {
     type Result = ();
 
-    fn handle(&mut self, msg: CreateLobby, ctx: &mut Self::Context) -> Self::Result {
-        debug!("Handling CreateLobby message: {}", msg.name);
+    fn handle(&mut self, _msg: LeaveLobby, ctx: &mut Self::Context) -> Self::Result {
+        debug!("Handling LeaveLobby message");
         if let Some(player) = &self.player {
-            player.do_send(player_msg::CreateLobby { name: msg.name });
+            player.do_send(player_msg::LeaveLobby {});
         } else {
-            error!("Got CreateLobby message, but user is not logged in!");
+            error!("Got LeaveLobby message, but user is not logged in!");
             ctx.address().do_send(messages::Error::new(
                 messages::ErrorType::Disconnected,
-                "Got CreateLobby message, but user is not logged in!",
+                "Got LeaveLobby message, but user is not logged in!",
             ));
         }
     }

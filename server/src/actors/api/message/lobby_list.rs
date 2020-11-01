@@ -1,7 +1,7 @@
 use actix::{Handler, Message};
 use serde::Serialize;
 
-use super::super::super::dtos::LobbyOverview;
+use super::super::super::messages::LobbyOverview;
 use super::super::WebSocket;
 
 #[derive(Message, Serialize)]

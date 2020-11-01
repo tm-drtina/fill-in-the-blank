@@ -2,10 +2,10 @@ use actix::{Handler, Message};
 use serde::Serialize;
 
 use super::super::super::api::message as api_msg;
-use super::super::super::dtos::LobbyOverview;
+use super::super::super::messages::LobbyOverview;
 use super::super::{Player, PlayerStatus};
 
-#[derive(Message, Serialize)]
+#[derive(Message, Serialize, Clone)]
 #[serde(tag = "type")]
 #[rtype(result = "()")]
 pub struct LobbyList {

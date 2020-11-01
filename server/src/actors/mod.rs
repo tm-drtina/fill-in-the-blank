@@ -1,6 +1,6 @@
 mod api;
-mod dtos;
 mod game;
+mod messages;
 mod player;
 mod server;
 

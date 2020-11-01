@@ -19,9 +19,11 @@ const CLIENT_TIMEOUT: Duration = Duration::from_secs(30);
 enum Message {
     Reconnect { session_id: Uuid },
     Connect { username: String },
+    Logout,
     GlobalChat { message: String },
     CreateLobby { name: String },
     JoinLobby { lobby_id: Uuid },
+    LeaveLobby,
     ListLobbies,
     LobbyChat { message: String },
 }
@@ -34,7 +36,7 @@ pub struct WebSocket {
     pub(super) server: Addr<Server>,
     pub(super) player: Option<Addr<Player>>,
 
-    disconnect_reason: String,
+    pub(super) disconnect_reason: String,
 }
 
 impl Actor for WebSocket {
@@ -123,6 +125,7 @@ impl WebSocket {
             Message::Reconnect { session_id } => ctx
                 .address()
                 .do_send(inbound_message::Reconnect { session_id }),
+            Message::Logout => ctx.address().do_send(inbound_message::Logout {}),
             Message::GlobalChat { message } => ctx
                 .address()
                 .do_send(inbound_message::GlobalChat { message }),
@@ -135,6 +138,7 @@ impl WebSocket {
             Message::LobbyChat { message } => ctx
                 .address()
                 .do_send(inbound_message::LobbyChat { message }),
+            Message::LeaveLobby => ctx.address().do_send(inbound_message::LeaveLobby {}),
             Message::ListLobbies => ctx.address().do_send(inbound_message::ListLobbies {}),
         }
     }
