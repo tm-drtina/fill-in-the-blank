@@ -10,6 +10,7 @@ import { useStoreActions, useStoreState } from '../../store/hooks';
 import { LobbyStatus } from '../../store/lobby';
 import { useWebSocket, WebSocketMessage } from '../../websocket';
 
+type TParams =  { id: string };
 
 const Lobby: React.FC = () => {
   const messages = useStoreState(state => state.chat.lobby);
@@ -21,7 +22,7 @@ const Lobby: React.FC = () => {
 
   const webSocket = useWebSocket();
   const { enqueueSnackbar } = useSnackbar();
-  const { id } = useParams();
+  const { id } = useParams<TParams>();
   const { push } = useHistory();
 
   useEffect(() => {
