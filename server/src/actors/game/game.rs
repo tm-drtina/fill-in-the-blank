@@ -1,6 +1,6 @@
 use actix::{Actor, Context};
 
-pub struct Game {}
+pub struct Game;
 
 impl Actor for Game {
     type Context = Context<Self>;

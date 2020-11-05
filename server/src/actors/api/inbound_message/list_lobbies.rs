@@ -7,7 +7,7 @@ use super::super::WebSocket;
 
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct ListLobbies {}
+pub struct ListLobbies;
 
 impl Handler<ListLobbies> for WebSocket {
     type Result = ();
@@ -15,7 +15,7 @@ impl Handler<ListLobbies> for WebSocket {
     fn handle(&mut self, _msg: ListLobbies, ctx: &mut Self::Context) -> Self::Result {
         debug!("Handling ListLobbies message");
         if let Some(player) = &self.player {
-            player.do_send(player_msg::ListLobbies {});
+            player.do_send(player_msg::ListLobbies);
         } else {
             error!("Got ListLobbies message, but user is not logged in!");
             ctx.address().do_send(messages::Error::new(

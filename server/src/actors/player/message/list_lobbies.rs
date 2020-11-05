@@ -5,7 +5,7 @@ use super::super::Player;
 
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct ListLobbies {}
+pub struct ListLobbies;
 
 impl Handler<ListLobbies> for Player {
     type Result = ();

@@ -14,7 +14,7 @@ impl Handler<Logout> for WebSocket {
     fn handle(&mut self, _msg: Logout, _ctx: &mut Self::Context) -> Self::Result {
         debug!("Handling Logout message");
         if let Some(player) = &self.player {
-            player.do_send(player_msg::Logout {});
+            player.do_send(player_msg::Logout);
             self.player = None;
         } else {
             warn!("Got Logout message, but user is not logged in. Skipping...");

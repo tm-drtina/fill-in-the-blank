@@ -15,7 +15,7 @@ impl Handler<LeaveLobby> for WebSocket {
     fn handle(&mut self, _msg: LeaveLobby, ctx: &mut Self::Context) -> Self::Result {
         debug!("Handling LeaveLobby message");
         if let Some(player) = &self.player {
-            player.do_send(player_msg::LeaveLobby {});
+            player.do_send(player_msg::LeaveLobby);
         } else {
             error!("Got LeaveLobby message, but user is not logged in!");
             ctx.address().do_send(messages::Error::new(

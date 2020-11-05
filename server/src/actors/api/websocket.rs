@@ -125,7 +125,7 @@ impl WebSocket {
             Message::Reconnect { session_id } => ctx
                 .address()
                 .do_send(inbound_message::Reconnect { session_id }),
-            Message::Logout => ctx.address().do_send(inbound_message::Logout {}),
+            Message::Logout => ctx.address().do_send(inbound_message::Logout),
             Message::GlobalChat { message } => ctx
                 .address()
                 .do_send(inbound_message::GlobalChat { message }),
@@ -138,8 +138,8 @@ impl WebSocket {
             Message::LobbyChat { message } => ctx
                 .address()
                 .do_send(inbound_message::LobbyChat { message }),
-            Message::LeaveLobby => ctx.address().do_send(inbound_message::LeaveLobby {}),
-            Message::ListLobbies => ctx.address().do_send(inbound_message::ListLobbies {}),
+            Message::LeaveLobby => ctx.address().do_send(inbound_message::LeaveLobby),
+            Message::ListLobbies => ctx.address().do_send(inbound_message::ListLobbies),
         }
     }
 }
