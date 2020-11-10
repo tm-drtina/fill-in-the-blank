@@ -139,7 +139,7 @@ impl Server {
                 timestamp: Utc::now(),
                 system_msg: false,
                 username: player_info.username.clone(),
-                message
+                message,
             },
         );
     }

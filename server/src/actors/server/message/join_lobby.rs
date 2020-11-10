@@ -35,8 +35,8 @@ impl Handler<JoinLobby> for Server {
                 return;
             }
         };
-        if player_info.current_lobby.is_some() {
-            if player_info.current_lobby.unwrap() == msg.lobby_id {
+        if let Some(current_lobby) = player_info.current_lobby {
+            if current_lobby == msg.lobby_id {
                 info!("Player is trying to join lobby, he/she is currently in. Skipping...");
             } else {
                 ctx.address().do_send(server_msg::LeaveLobby {
