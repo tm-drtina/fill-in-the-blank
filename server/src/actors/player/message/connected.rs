@@ -21,7 +21,7 @@ impl Handler<Connected> for Player {
                     api_client: msg.api_client.clone(),
                 };
                 msg.api_client.do_send(api_msg::UserConnected {
-                    session_id: self.session_id.clone(),
+                    session_id: self.session_id,
                     username: self.username.clone(),
                     player: ctx.address(),
                 });
@@ -36,7 +36,7 @@ impl Handler<Connected> for Player {
                     api_client: msg.api_client.clone(),
                 };
                 msg.api_client.do_send(api_msg::UserConnected {
-                    session_id: self.session_id.clone(),
+                    session_id: self.session_id,
                     username: self.username.clone(),
                     player: ctx.address(),
                 });

@@ -38,12 +38,12 @@ impl Handler<LeaveLobby> for Server {
                 .players
                 .iter()
                 .filter(|player| **player != msg.player_id)
-                .map(|player| *player)
+                .copied()
                 .collect();
 
             let lobby_message = format!("User '{}' left the lobby.", player_info.username);
             let lobby_info_msg = self.get_lobby_info_msg(lobby_id).unwrap();
-            self.broadcast_message_to_lobby_players(lobby_id, lobby_info_msg);
+            self.broadcast_message_to_lobby_players(lobby_id, &lobby_info_msg);
             self.broadcast_lobby_system_message(lobby_id, lobby_message);
         } else {
             self.lobbies.remove(&lobby_id);
@@ -52,6 +52,6 @@ impl Handler<LeaveLobby> for Server {
         let lobby_list_msg = player_msg::LobbyList {
             lobbies: self.get_lobby_overviews(),
         };
-        self.broadcast_message_to_non_lobby_players(lobby_list_msg);
+        self.broadcast_message_to_non_lobby_players(&lobby_list_msg);
     }
 }

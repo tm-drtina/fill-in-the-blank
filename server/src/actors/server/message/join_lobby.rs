@@ -55,14 +55,14 @@ impl Handler<JoinLobby> for Server {
 
         let lobby_message = format!("User '{}' joined the lobby.", player_info.username);
         let lobby_info_msg = self.get_lobby_info_msg(msg.lobby_id).unwrap();
-        self.broadcast_message_to_lobby_players(msg.lobby_id, lobby_info_msg);
+        self.broadcast_message_to_lobby_players(msg.lobby_id, &lobby_info_msg);
         self.broadcast_lobby_system_message(msg.lobby_id, lobby_message);
 
         let lobbies = self.get_lobby_overviews();
-        for (_, player_info) in &self.players {
+        for player_info in self.players.values() {
             if player_info.current_lobby.is_none() {
                 player_info.addr.do_send(player_msg::LobbyList {
-                    lobbies: lobbies.iter().map(|lobby| lobby.clone()).collect(),
+                    lobbies: lobbies.clone(),
                 });
             }
         }

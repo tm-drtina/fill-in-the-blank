@@ -49,7 +49,7 @@ impl Server {
         Some(player_msg::LobbyInfo {
             lobby_id,
             name: lobby_info.name.clone(),
-            players: (&players)
+            players: players
                 .into_iter()
                 .map(|player| player.username.clone())
                 .collect(),
@@ -67,7 +67,7 @@ impl Server {
             .collect()
     }
 
-    pub(super) fn broadcast_message_to_lobby_players<M>(&self, lobby_id: Uuid, msg: M)
+    pub(super) fn broadcast_message_to_lobby_players<M>(&self, lobby_id: Uuid, msg: &M)
     where
         M: Message + Send + Clone + 'static,
         M::Result: Send,
@@ -93,13 +93,13 @@ impl Server {
         }
     }
 
-    pub(super) fn broadcast_message_to_non_lobby_players<M>(&self, msg: M)
+    pub(super) fn broadcast_message_to_non_lobby_players<M>(&self, msg: &M)
     where
         M: Message + Send + Clone + 'static,
         M::Result: Send,
         Player: Handler<M>,
     {
-        for (_, player_info) in &self.players {
+        for player_info in self.players.values() {
             if player_info.current_lobby.is_none() {
                 player_info.addr.do_send(msg.clone());
             }
@@ -109,11 +109,11 @@ impl Server {
     pub(super) fn broadcast_lobby_system_message(&self, lobby_id: Uuid, message: String) {
         self.broadcast_message_to_lobby_players(
             lobby_id,
-            player_msg::ReceiveLobbyChat {
+            &player_msg::ReceiveLobbyChat {
                 timestamp: Utc::now(),
                 system_msg: true,
                 username: "system".to_string(),
-                message: message.clone(),
+                message,
             },
         );
     }
@@ -135,11 +135,11 @@ impl Server {
         }
         self.broadcast_message_to_lobby_players(
             player_info.current_lobby.unwrap(),
-            player_msg::ReceiveLobbyChat {
+            &player_msg::ReceiveLobbyChat {
                 timestamp: Utc::now(),
                 system_msg: false,
                 username: player_info.username.clone(),
-                message: message.clone(),
+                message
             },
         );
     }

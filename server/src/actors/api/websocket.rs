@@ -97,7 +97,7 @@ impl WebSocket {
         }
     }
 
-    /// Helper method that sends ping to client every HEARTBEAT_INTERVAL.
+    /// Helper method that sends ping to client every `HEARTBEAT_INTERVAL`.
     /// Also this method checks heartbeats from client and disconnects unresponsive clients.
     fn hb(&self, ctx: &mut <Self as Actor>::Context) {
         ctx.run_interval(HEARTBEAT_INTERVAL, |act, ctx| {
