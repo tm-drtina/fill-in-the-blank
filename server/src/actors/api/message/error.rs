@@ -1,16 +1,7 @@
-use actix::{Handler, Message};
-use chrono::{DateTime, Utc};
-use serde::Serialize;
+use actix::Handler;
 
+use super::super::super::messages::Error;
 use super::super::WebSocket;
-
-#[derive(Message, Serialize)]
-#[serde(tag = "type")]
-#[rtype(result = "()")]
-pub struct Error {
-    pub timestamp: DateTime<Utc>,
-    pub text: String,
-}
 
 impl Handler<Error> for WebSocket {
     type Result = ();

@@ -22,6 +22,9 @@ impl Handler<Disconnected> for Player {
                 "User '{}' disconnected. Reason: {}",
                 self.username, msg.reason
             )));
+        self.server.do_send(server_msg::LeaveLobby {
+            player_id: self.session_id,
+        });
         // TODO: wait, then skip in game, later drop from game
     }
 }

@@ -1,5 +1,6 @@
 import { ThemeProvider } from '@material-ui/core/styles';
 import { StoreProvider } from 'easy-peasy';
+import { SnackbarProvider } from 'notistack';
 import React from 'react';
 import { HashRouter } from 'react-router-dom';
 import WebSocketWrapper from './components/WebSocketWrapper/WebSocketWrapper';
@@ -12,7 +13,9 @@ function App() {
     <StoreProvider store={store}>
       <HashRouter>
         <ThemeProvider theme={theme}>
-          <WebSocketWrapper/>
+          <SnackbarProvider maxSnack={3}>
+            <WebSocketWrapper/>
+          </SnackbarProvider>
         </ThemeProvider>
       </HashRouter>
     </StoreProvider>

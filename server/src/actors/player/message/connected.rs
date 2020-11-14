@@ -1,6 +1,7 @@
 use actix::{Addr, AsyncContext, Context, Handler, Message};
 
 use super::super::super::api::{message as api_msg, ApiClient};
+use super::super::super::messages;
 use super::super::super::server::message as server_msg;
 use super::super::{Player, PlayerStatus};
 
@@ -20,7 +21,7 @@ impl Handler<Connected> for Player {
                     api_client: msg.api_client.clone(),
                 };
                 msg.api_client.do_send(api_msg::UserConnected {
-                    session_id: self.session_id.clone(),
+                    session_id: self.session_id,
                     username: self.username.clone(),
                     player: ctx.address(),
                 });
@@ -35,7 +36,7 @@ impl Handler<Connected> for Player {
                     api_client: msg.api_client.clone(),
                 };
                 msg.api_client.do_send(api_msg::UserConnected {
-                    session_id: self.session_id.clone(),
+                    session_id: self.session_id,
                     username: self.username.clone(),
                     player: ctx.address(),
                 });
@@ -46,9 +47,10 @@ impl Handler<Connected> for Player {
                     )));
             }
             PlayerStatus::Connected { .. } => {
-                msg.api_client.do_send(api_msg::ConnectionFailed {
-                    reason: "User still connected.".to_string(),
-                });
+                msg.api_client.do_send(messages::Error::new(
+                    messages::ErrorType::ReconnectFailed,
+                    "User still connected.",
+                ));
             }
         }
     }

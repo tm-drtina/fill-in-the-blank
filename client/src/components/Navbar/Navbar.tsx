@@ -6,7 +6,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { useStoreState } from '../../store/hooks';
+import { useStoreActions, useStoreState } from '../../store/hooks';
 import { removeItem, USER_SESSION_UUID_KEY } from '../../utils/storage';
 import { useWebSocket, WebSocketMessage } from '../../websocket';
 
@@ -26,10 +26,12 @@ const Navbar = () => {
   const classes = useStyles();
   const webSocket = useWebSocket();
   const username = useStoreState(state => state.user.username)
+  const logout = useStoreActions(actions => actions.user.logout)
 
   const onLogout = async () => {
     removeItem(USER_SESSION_UUID_KEY);
-    webSocket.send(WebSocketMessage.logout())
+    logout();
+    webSocket.send(WebSocketMessage.logout());
   }
 
   return (

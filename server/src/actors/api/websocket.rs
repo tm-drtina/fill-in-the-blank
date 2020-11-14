@@ -19,7 +19,13 @@ const CLIENT_TIMEOUT: Duration = Duration::from_secs(30);
 enum Message {
     Reconnect { session_id: Uuid },
     Connect { username: String },
+    Logout,
     GlobalChat { message: String },
+    CreateLobby { name: String },
+    JoinLobby { lobby_id: Uuid },
+    LeaveLobby,
+    ListLobbies,
+    LobbyChat { message: String },
 }
 
 pub struct WebSocket {
@@ -30,7 +36,7 @@ pub struct WebSocket {
     pub(super) server: Addr<Server>,
     pub(super) player: Option<Addr<Player>>,
 
-    disconnect_reason: String,
+    pub(super) disconnect_reason: String,
 }
 
 impl Actor for WebSocket {
@@ -91,7 +97,7 @@ impl WebSocket {
         }
     }
 
-    /// Helper method that sends ping to client every HEARTBEAT_INTERVAL.
+    /// Helper method that sends ping to client every `HEARTBEAT_INTERVAL`.
     /// Also this method checks heartbeats from client and disconnects unresponsive clients.
     fn hb(&self, ctx: &mut <Self as Actor>::Context) {
         ctx.run_interval(HEARTBEAT_INTERVAL, |act, ctx| {
@@ -119,9 +125,21 @@ impl WebSocket {
             Message::Reconnect { session_id } => ctx
                 .address()
                 .do_send(inbound_message::Reconnect { session_id }),
+            Message::Logout => ctx.address().do_send(inbound_message::Logout),
             Message::GlobalChat { message } => ctx
                 .address()
                 .do_send(inbound_message::GlobalChat { message }),
+            Message::CreateLobby { name } => {
+                ctx.address().do_send(inbound_message::CreateLobby { name })
+            }
+            Message::JoinLobby { lobby_id } => ctx
+                .address()
+                .do_send(inbound_message::JoinLobby { lobby_id }),
+            Message::LobbyChat { message } => ctx
+                .address()
+                .do_send(inbound_message::LobbyChat { message }),
+            Message::LeaveLobby => ctx.address().do_send(inbound_message::LeaveLobby),
+            Message::ListLobbies => ctx.address().do_send(inbound_message::ListLobbies),
         }
     }
 }

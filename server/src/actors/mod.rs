@@ -1,5 +1,6 @@
 mod api;
 mod game;
+mod messages;
 mod player;
 mod server;
 
