@@ -7,19 +7,21 @@ import WebSocketWrapper from './components/WebSocketWrapper/WebSocketWrapper';
 
 import store from './store';
 import theme from './theme';
+import { CssBaseline } from "@material-ui/core";
 
 function App() {
-  return (
-    <StoreProvider store={store}>
-      <HashRouter>
-        <ThemeProvider theme={theme}>
-          <SnackbarProvider maxSnack={3}>
-            <WebSocketWrapper/>
-          </SnackbarProvider>
-        </ThemeProvider>
-      </HashRouter>
-    </StoreProvider>
-  );
+    return (
+        <StoreProvider store={store}>
+            <CssBaseline/>
+            <HashRouter>
+                <ThemeProvider theme={theme}>
+                    <SnackbarProvider maxSnack={3}>
+                        <WebSocketWrapper/>
+                    </SnackbarProvider>
+                </ThemeProvider>
+            </HashRouter>
+        </StoreProvider>
+    );
 }
 
 export default App;
