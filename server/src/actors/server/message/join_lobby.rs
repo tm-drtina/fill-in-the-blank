@@ -1,4 +1,4 @@
-use actix::{AsyncContext, Handler, Message};
+use actix::{AsyncContext, Handler, Message, Actor, Context};
 use log::{error, info};
 use uuid::Uuid;
 
@@ -13,17 +13,32 @@ pub struct JoinLobby {
     pub player_id: Uuid,
 }
 
-impl Handler<JoinLobby> for Server {
+trait EmptyHandler<M>
+where Self: Actor, M: Message {
+    fn _handle(&mut self, msg: M, ctx: &mut Self::Context) -> Result<(), String>;
+}
+
+impl<T, M> Handler<M> for T
+where
+    T: EmptyHandler<M>,
+    M: Message,
+{
     type Result = ();
 
-    fn handle(&mut self, msg: JoinLobby, ctx: &mut Self::Context) -> Self::Result {
-        let player_info = match self.players.get_mut(&msg.player_id) {
-            Some(player_info) => player_info,
-            None => {
-                error!("Player session '{}' not found", msg.player_id);
-                return;
-            }
-        };
+    fn handle(&mut self, msg: T, ctx: &mut Self::Context) -> Self::Result {
+        match self._handle(msg, ctx) {
+            Ok(()) => {},
+            Err(err) => {
+                error!("{}", err)
+            },
+        }
+    }
+}
+
+impl EmptyHandler<JoinLobby> for Server {
+    fn _handle(&mut self, msg: JoinLobby, ctx: &mut Self::Context) -> Result<(), String> {
+        let player_info = self.players.get_mut(&msg.player_id)
+            .ok_or(format!("Player session '{}' not found", msg.player_id))?;
         let lobby_info = match self.lobbies.get_mut(&msg.lobby_id) {
             Some(info) => info,
             None => {
@@ -32,7 +47,7 @@ impl Handler<JoinLobby> for Server {
                     "Selected lobby was not found.",
                 ));
                 info!("Lobby '{}' not found", msg.lobby_id);
-                return;
+                return Err(String::from(""));
             }
         };
         if let Some(current_lobby) = player_info.current_lobby {
@@ -47,14 +62,14 @@ impl Handler<JoinLobby> for Server {
                     lobby_id: msg.lobby_id,
                 });
             }
-            return;
+            return Ok(())
         };
 
         player_info.current_lobby = Some(msg.lobby_id);
         lobby_info.players.push(msg.player_id);
 
         let lobby_message = format!("User '{}' joined the lobby.", player_info.username);
-        let lobby_info_msg = self.get_lobby_info_msg(msg.lobby_id).unwrap();
+        let lobby_info_msg = self.get_lobby_info_msg(msg.lobby_id)?;
         self.broadcast_message_to_lobby_players(msg.lobby_id, &lobby_info_msg);
         self.broadcast_lobby_system_message(msg.lobby_id, lobby_message);
 
@@ -66,5 +81,6 @@ impl Handler<JoinLobby> for Server {
                 });
             }
         }
+        Ok(())
     }
 }

@@ -14,6 +14,6 @@ impl Handler<LobbyChatBroadcast> for Server {
     type Result = ();
 
     fn handle(&mut self, msg: LobbyChatBroadcast, _ctx: &mut Context<Self>) -> Self::Result {
-        self.broadcast_lobby_user_message(msg.player_id, msg.message);
+        self.broadcast_lobby_user_message(msg.player_id, msg.message)
     }
 }

@@ -26,13 +26,9 @@ pub struct Server {
 }
 
 impl Server {
-    pub(super) fn get_lobby_info_msg(&self, lobby_id: Uuid) -> Option<player_msg::LobbyInfo> {
-        let lobby_info = match self.lobbies.get(&lobby_id) {
-            Some(info) => info,
-            None => {
-                return None;
-            }
-        };
+    pub(super) fn get_lobby_info_msg(&self, lobby_id: Uuid) -> Result<player_msg::LobbyInfo, String> {
+        let lobby_info = self.lobbies.get(&lobby_id)
+            .ok_or(format!("Lobby {} not found", lobby_id))?;
         let mut players: Vec<&PlayerInfo> = Vec::new();
 
         for player_id in &lobby_info.players {
@@ -46,7 +42,7 @@ impl Server {
             };
         }
 
-        Some(player_msg::LobbyInfo {
+        Ok(player_msg::LobbyInfo {
             lobby_id,
             name: lobby_info.name.clone(),
             players: players
@@ -67,19 +63,14 @@ impl Server {
             .collect()
     }
 
-    pub(super) fn broadcast_message_to_lobby_players<M>(&self, lobby_id: Uuid, msg: &M)
-    where
-        M: Message + Send + Clone + 'static,
-        M::Result: Send,
-        Player: Handler<M>,
+    pub(super) fn broadcast_message_to_lobby_players<M>(&self, lobby_id: Uuid, msg: &M) -> Result<(), String>
+        where
+            M: Message + Send + Clone + 'static,
+            M::Result: Send,
+            Player: Handler<M>,
     {
-        let lobby_info = match self.lobbies.get(&lobby_id) {
-            Some(info) => info,
-            None => {
-                error!("Lobby '{}' not found", lobby_id);
-                return;
-            }
-        };
+        let lobby_info = self.lobbies.get(&lobby_id)
+            .ok_or(format!("Lobby '{}' not found", lobby_id))?;
 
         for player_id in &lobby_info.players {
             match self.players.get(player_id) {
@@ -91,13 +82,14 @@ impl Server {
                 }
             };
         }
+        Ok(())
     }
 
     pub(super) fn broadcast_message_to_non_lobby_players<M>(&self, msg: &M)
-    where
-        M: Message + Send + Clone + 'static,
-        M::Result: Send,
-        Player: Handler<M>,
+        where
+            M: Message + Send + Clone + 'static,
+            M::Result: Send,
+            Player: Handler<M>,
     {
         for player_info in self.players.values() {
             if player_info.current_lobby.is_none() {
@@ -106,7 +98,7 @@ impl Server {
         }
     }
 
-    pub(super) fn broadcast_lobby_system_message(&self, lobby_id: Uuid, message: String) {
+    pub(super) fn broadcast_lobby_system_message(&self, lobby_id: Uuid, message: String) -> Result<(), String> {
         self.broadcast_message_to_lobby_players(
             lobby_id,
             &player_msg::ReceiveLobbyChat {
@@ -115,33 +107,24 @@ impl Server {
                 username: "system".to_string(),
                 message,
             },
-        );
+        )
     }
 
-    pub(super) fn broadcast_lobby_user_message(&self, player_id: Uuid, message: String) {
-        let player_info = match self.players.get(&player_id) {
-            Some(player_info) => player_info,
-            None => {
-                error!("Player session '{}' not found", player_id);
-                return;
-            }
-        };
-        if player_info.current_lobby.is_none() {
-            error!(
-                "Player '{}' is not in lobby. Cannot send lobby chat message",
-                player_id
-            );
-            return;
-        }
+    pub(super) fn broadcast_lobby_user_message(&self, player_id: Uuid, message: String) -> Result<(), String> {
+        let player_info = self.players.get(&player_id)
+            .ok_or(format!("Player session '{}' not found", player_id))?;
+        let lobby_id = player_info.current_lobby
+            .ok_or(format!("Player '{}' is not in lobby. Cannot send lobby chat message", player_id))?;
+
         self.broadcast_message_to_lobby_players(
-            player_info.current_lobby.unwrap(),
+            lobby_id,
             &player_msg::ReceiveLobbyChat {
                 timestamp: Utc::now(),
                 system_msg: false,
                 username: player_info.username.clone(),
                 message,
             },
-        );
+        )
     }
 }
 
