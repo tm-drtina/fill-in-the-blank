@@ -4,18 +4,18 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.0",
-    "@types/node": "^12.0.0",
-    "@types/react": "^16.9.53",
-    "@types/react-dom": "^16.9.8",
-    "@types/react-router-dom": "^5.1.6",
-    "easy-peasy": "^4.0.1",
-    "notistack": "^1.0.1",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
+    "@types/node": "^15.0.1",
+    "@types/react": "^17.0.4",
+    "@types/react-dom": "^17.0.3",
+    "@types/react-router-dom": "^5.1.7",
+    "easy-peasy": "^5.0.3",
+    "notistack": "^1.0.6",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "4.0.0",
-    "typescript": "^4.0.3"
+    "react-scripts": "4.0.3",
+    "typescript": "^4.2.4"
   },
   "scripts": {
     "start": "react-scripts start",

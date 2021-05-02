@@ -16,6 +16,7 @@ pub enum ErrorType {
     SessionNotFound,
     ReconnectFailed,
     LobbyLeft,
+    CreateLobbyFailed,
 }
 
 #[derive(Message, Serialize)]
@@ -28,11 +29,11 @@ pub struct Error {
 }
 
 impl Error {
-    pub fn new(error_type: ErrorType, reason: &str) -> Self {
+    pub fn new(error_type: ErrorType, reason: impl Into<String>) -> Self {
         Self {
             timestamp: Utc::now(),
             error_type,
-            text: reason.to_string(),
+            text: reason.into(),
         }
     }
 }

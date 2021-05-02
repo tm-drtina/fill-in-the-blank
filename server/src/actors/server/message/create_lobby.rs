@@ -3,6 +3,7 @@ use log::error;
 use uuid::Uuid;
 
 use super::super::{message as server_msg, LobbyInfo, Server};
+use super::super::super::messages as global_msg;
 
 #[derive(Message)]
 #[rtype(result = "()")]
@@ -23,7 +24,8 @@ impl Handler<CreateLobby> for Server {
             }
         };
         if player_info.current_lobby.is_some() {
-            error!("Player '{}' is already in a lobby", player_info.username);
+            let error = format!("Player '{}' is already in a lobby", player_info.username);
+            player_info.addr.do_send(global_msg::Error::new(global_msg::ErrorType::CreateLobbyFailed, error));
             return;
         };
 
