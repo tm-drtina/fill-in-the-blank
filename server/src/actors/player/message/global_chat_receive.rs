@@ -4,21 +4,21 @@ use chrono::{DateTime, Utc};
 use super::super::super::api::message as api_msg;
 use super::super::{Player, PlayerStatus};
 
-#[derive(Message, Clone)]
+#[derive(Message)]
 #[rtype(result = "()")]
-pub struct ReceiveLobbyChat {
+pub struct GlobalChatReceive {
     pub timestamp: DateTime<Utc>,
     pub system_msg: bool,
     pub username: String,
     pub message: String,
 }
 
-impl Handler<ReceiveLobbyChat> for Player {
+impl Handler<GlobalChatReceive> for Player {
     type Result = ();
 
-    fn handle(&mut self, msg: ReceiveLobbyChat, _ctx: &mut Context<Self>) -> Self::Result {
+    fn handle(&mut self, msg: GlobalChatReceive, _ctx: &mut Context<Self>) -> Self::Result {
         if let PlayerStatus::Connected { api_client } = &self.status {
-            api_client.do_send(api_msg::LobbyChat {
+            api_client.do_send(api_msg::GlobalChat {
                 timestamp: msg.timestamp,
                 system_msg: msg.system_msg,
                 username: msg.username,

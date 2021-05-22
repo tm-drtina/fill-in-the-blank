@@ -7,14 +7,14 @@ use super::super::Server;
 
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct LeaveLobby {
+pub struct LobbyLeave {
     pub player_id: Uuid,
 }
 
-impl Handler<LeaveLobby> for Server {
+impl Handler<LobbyLeave> for Server {
     type Result = ();
 
-    fn handle(&mut self, msg: LeaveLobby, _ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, msg: LobbyLeave, _ctx: &mut Self::Context) -> Self::Result {
         let player_info = match self.players.get_mut(&msg.player_id) {
             Some(player_info) => player_info,
             None => {
@@ -24,7 +24,7 @@ impl Handler<LeaveLobby> for Server {
         };
         if player_info.current_lobby.is_none() {
             info!(
-                "Player '{}' is not in a lobby. Skipping LeaveLobby message",
+                "Player '{}' is not in the specified lobby. Skipping LobbyLeave message",
                 player_info.username
             );
             return;
@@ -49,7 +49,7 @@ impl Handler<LeaveLobby> for Server {
             self.lobbies.remove(&lobby_id);
         }
 
-        let lobby_list_msg = player_msg::LobbyList {
+        let lobby_list_msg = player_msg::LobbyListRes {
             lobbies: self.get_lobby_overviews(),
         };
         self.broadcast_message_to_non_lobby_players(&lobby_list_msg);

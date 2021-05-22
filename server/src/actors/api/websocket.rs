@@ -17,15 +17,17 @@ const CLIENT_TIMEOUT: Duration = Duration::from_secs(30);
 #[derive(Deserialize, Debug)]
 #[serde(tag = "action")]
 enum Message {
-    Reconnect { session_id: Uuid },
-    Connect { username: String },
-    Logout,
+    PlayerConnect { username: String },
+    PlayerLogout,
+    PlayerReconnect { session_id: Uuid },
+
     GlobalChat { message: String },
-    CreateLobby { name: String },
-    JoinLobby { lobby_id: Uuid },
-    LeaveLobby,
-    ListLobbies,
+
     LobbyChat { message: String },
+    LobbyCreate { name: String },
+    LobbyJoin { lobby_id: Uuid },
+    LobbyLeave,
+    LobbyList,
 }
 
 pub struct WebSocket {
@@ -49,7 +51,7 @@ impl Actor for WebSocket {
 
     fn stopped(&mut self, _ctx: &mut Self::Context) {
         if let Some(player) = &self.player {
-            player.do_send(player_msg::Disconnected {
+            player.do_send(player_msg::PlayerDisconnected {
                 reason: (&self.disconnect_reason).clone(),
             });
         }
@@ -119,27 +121,27 @@ impl WebSocket {
     fn handle_message(&mut self, ctx: &mut <Self as Actor>::Context, message: Message) {
         debug!("Handling WS message: {:?}", message);
         match message {
-            Message::Connect { username } => {
-                ctx.address().do_send(inbound_message::Connect { username })
-            }
-            Message::Reconnect { session_id } => ctx
+            Message::PlayerConnect { username } => ctx
                 .address()
-                .do_send(inbound_message::Reconnect { session_id }),
-            Message::Logout => ctx.address().do_send(inbound_message::Logout),
+                .do_send(inbound_message::PlayerConnect { username }),
+            Message::PlayerReconnect { session_id } => ctx
+                .address()
+                .do_send(inbound_message::PlayerReconnect { session_id }),
+            Message::PlayerLogout => ctx.address().do_send(inbound_message::PlayerLogout),
             Message::GlobalChat { message } => ctx
                 .address()
                 .do_send(inbound_message::GlobalChat { message }),
-            Message::CreateLobby { name } => {
-                ctx.address().do_send(inbound_message::CreateLobby { name })
+            Message::LobbyCreate { name } => {
+                ctx.address().do_send(inbound_message::LobbyCreate { name })
             }
-            Message::JoinLobby { lobby_id } => ctx
+            Message::LobbyJoin { lobby_id } => ctx
                 .address()
-                .do_send(inbound_message::JoinLobby { lobby_id }),
+                .do_send(inbound_message::LobbyJoin { lobby_id }),
             Message::LobbyChat { message } => ctx
                 .address()
                 .do_send(inbound_message::LobbyChat { message }),
-            Message::LeaveLobby => ctx.address().do_send(inbound_message::LeaveLobby),
-            Message::ListLobbies => ctx.address().do_send(inbound_message::ListLobbies),
+            Message::LobbyLeave => ctx.address().do_send(inbound_message::LobbyLeave),
+            Message::LobbyList => ctx.address().do_send(inbound_message::LobbyList),
         }
     }
 }

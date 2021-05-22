@@ -45,7 +45,7 @@ impl Player {
             if let PlayerStatus::LostConnection { last_seen } = act.status {
                 if Instant::now().duration_since(last_seen) > PLAYER_TIMEOUT {
                     info!("Player {} timed out.", act.username);
-                    act.server.do_send(server_msg::DestroySession {
+                    act.server.do_send(server_msg::PlayerDestroy {
                         session_id: act.session_id,
                     });
                     ctx.stop();

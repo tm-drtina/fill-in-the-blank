@@ -8,19 +8,19 @@ use super::super::{PlayerInfo, Server};
 
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct Connect {
+pub struct PlayerConnect {
     pub username: String,
     pub api_client: Addr<ApiClient>,
 }
 
-impl Handler<Connect> for Server {
+impl Handler<PlayerConnect> for Server {
     type Result = ();
 
-    fn handle(&mut self, msg: Connect, ctx: &mut Context<Self>) -> Self::Result {
+    fn handle(&mut self, msg: PlayerConnect, ctx: &mut Context<Self>) -> Self::Result {
         let session_id = Uuid::new_v4();
         let player = Player::new(ctx.address(), session_id, msg.username.clone()).start();
 
-        player.do_send(player::message::Connected {
+        player.do_send(player::message::PlayerConnected {
             api_client: msg.api_client,
         });
         self.players

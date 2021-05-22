@@ -6,15 +6,15 @@ use super::super::Player;
 
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct JoinLobby {
+pub struct LobbyJoin {
     pub lobby_id: Uuid,
 }
 
-impl Handler<JoinLobby> for Player {
+impl Handler<LobbyJoin> for Player {
     type Result = ();
 
-    fn handle(&mut self, msg: JoinLobby, _ctx: &mut Self::Context) -> Self::Result {
-        self.server.do_send(server_msg::JoinLobby {
+    fn handle(&mut self, msg: LobbyJoin, _ctx: &mut Self::Context) -> Self::Result {
+        self.server.do_send(server_msg::LobbyJoin {
             lobby_id: msg.lobby_id,
             player_id: self.session_id,
         });

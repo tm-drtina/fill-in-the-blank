@@ -2,20 +2,20 @@ use actix::{AsyncContext, Handler, Message};
 use log::error;
 use uuid::Uuid;
 
-use super::super::{message as server_msg, LobbyInfo, Server};
 use super::super::super::messages as global_msg;
+use super::super::{message as server_msg, LobbyInfo, Server};
 
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct CreateLobby {
+pub struct LobbyCreate {
     pub name: String,
     pub player_id: Uuid,
 }
 
-impl Handler<CreateLobby> for Server {
+impl Handler<LobbyCreate> for Server {
     type Result = ();
 
-    fn handle(&mut self, msg: CreateLobby, ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, msg: LobbyCreate, ctx: &mut Self::Context) -> Self::Result {
         let player_info = match self.players.get_mut(&msg.player_id) {
             Some(player_info) => player_info,
             None => {
@@ -25,14 +25,17 @@ impl Handler<CreateLobby> for Server {
         };
         if player_info.current_lobby.is_some() {
             let error = format!("Player '{}' is already in a lobby", player_info.username);
-            player_info.addr.do_send(global_msg::Error::new(global_msg::ErrorType::CreateLobbyFailed, error));
+            player_info.addr.do_send(global_msg::Error::new(
+                global_msg::ErrorType::CreateLobbyFailed,
+                error,
+            ));
             return;
         };
 
         let lobby_id = Uuid::new_v4();
         self.lobbies
             .insert(lobby_id, LobbyInfo::new(msg.name.clone()));
-        ctx.address().do_send(server_msg::JoinLobby {
+        ctx.address().do_send(server_msg::LobbyJoin {
             lobby_id,
             player_id: msg.player_id,
         });

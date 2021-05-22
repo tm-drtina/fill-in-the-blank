@@ -7,14 +7,14 @@ use super::super::Server;
 
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct ListLobbies {
+pub struct LobbyList {
     pub player_id: Uuid,
 }
 
-impl Handler<ListLobbies> for Server {
+impl Handler<LobbyList> for Server {
     type Result = ();
 
-    fn handle(&mut self, msg: ListLobbies, _ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, msg: LobbyList, _ctx: &mut Self::Context) -> Self::Result {
         let player_info = match self.players.get(&msg.player_id) {
             Some(player_info) => player_info,
             None => {
@@ -23,7 +23,7 @@ impl Handler<ListLobbies> for Server {
             }
         };
 
-        player_info.addr.do_send(player_msg::LobbyList {
+        player_info.addr.do_send(player_msg::LobbyListRes {
             lobbies: self.get_lobby_overviews(),
         })
     }

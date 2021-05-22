@@ -5,15 +5,15 @@ use super::super::Player;
 
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct CreateLobby {
+pub struct LobbyCreate {
     pub name: String,
 }
 
-impl Handler<CreateLobby> for Player {
+impl Handler<LobbyCreate> for Player {
     type Result = ();
 
-    fn handle(&mut self, msg: CreateLobby, _ctx: &mut Self::Context) -> Self::Result {
-        self.server.do_send(server_msg::CreateLobby {
+    fn handle(&mut self, msg: LobbyCreate, _ctx: &mut Self::Context) -> Self::Result {
+        self.server.do_send(server_msg::LobbyCreate {
             name: msg.name,
             player_id: self.session_id,
         });

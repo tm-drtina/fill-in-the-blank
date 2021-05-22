@@ -1,6 +1,6 @@
 export enum MessageTypes {
   Error = 'Error',
-  UserConnected = 'UserConnected',
+  UserConnected = 'PlayerConnected',
   GlobalChat = 'GlobalChat',
   LobbyChat = 'LobbyChat',
   LobbyList = 'LobbyList',

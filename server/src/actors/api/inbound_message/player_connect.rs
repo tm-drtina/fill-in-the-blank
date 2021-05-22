@@ -6,16 +6,19 @@ use super::super::WebSocket;
 
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct Connect {
+pub struct PlayerConnect {
     pub username: String,
 }
 
-impl Handler<Connect> for WebSocket {
+impl Handler<PlayerConnect> for WebSocket {
     type Result = ();
 
-    fn handle(&mut self, msg: Connect, ctx: &mut Self::Context) -> Self::Result {
-        debug!("Handling Connect message with username: {:?}", msg.username);
-        self.server.do_send(server_msg::Connect {
+    fn handle(&mut self, msg: PlayerConnect, ctx: &mut Self::Context) -> Self::Result {
+        debug!(
+            "Handling PlayerConnect message with username: {:?}",
+            msg.username
+        );
+        self.server.do_send(server_msg::PlayerConnect {
             username: msg.username,
             api_client: ctx.address(),
         });

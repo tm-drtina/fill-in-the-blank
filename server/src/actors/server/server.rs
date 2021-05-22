@@ -109,7 +109,7 @@ impl Server {
     pub(super) fn broadcast_lobby_system_message(&self, lobby_id: Uuid, message: String) {
         self.broadcast_message_to_lobby_players(
             lobby_id,
-            &player_msg::ReceiveLobbyChat {
+            &player_msg::LobbyChatReceive {
                 timestamp: Utc::now(),
                 system_msg: true,
                 username: "system".to_string(),
@@ -135,7 +135,7 @@ impl Server {
         }
         self.broadcast_message_to_lobby_players(
             player_info.current_lobby.unwrap(),
-            &player_msg::ReceiveLobbyChat {
+            &player_msg::LobbyChatReceive {
                 timestamp: Utc::now(),
                 system_msg: false,
                 username: player_info.username.clone(),

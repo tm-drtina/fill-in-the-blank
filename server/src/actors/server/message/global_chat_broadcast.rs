@@ -37,7 +37,7 @@ impl Handler<GlobalChatBroadcast> for Server {
 
     fn handle(&mut self, msg: GlobalChatBroadcast, _ctx: &mut Context<Self>) -> Self::Result {
         for player in self.players.values() {
-            player.addr.do_send(player::message::ReceiveGlobalChat {
+            player.addr.do_send(player::message::GlobalChatReceive {
                 timestamp: msg.timestamp,
                 system_msg: msg.system_msg,
                 username: msg.username.clone(),

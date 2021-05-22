@@ -8,15 +8,15 @@ use super::super::{message as server_msg, Server};
 
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct JoinLobby {
+pub struct LobbyJoin {
     pub lobby_id: Uuid,
     pub player_id: Uuid,
 }
 
-impl Handler<JoinLobby> for Server {
+impl Handler<LobbyJoin> for Server {
     type Result = ();
 
-    fn handle(&mut self, msg: JoinLobby, ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, msg: LobbyJoin, ctx: &mut Self::Context) -> Self::Result {
         let player_info = match self.players.get_mut(&msg.player_id) {
             Some(player_info) => player_info,
             None => {
@@ -39,10 +39,10 @@ impl Handler<JoinLobby> for Server {
             if current_lobby == msg.lobby_id {
                 info!("Player is trying to join lobby, he/she is currently in. Skipping...");
             } else {
-                ctx.address().do_send(server_msg::LeaveLobby {
+                ctx.address().do_send(server_msg::LobbyLeave {
                     player_id: msg.player_id,
                 });
-                ctx.address().do_send(server_msg::JoinLobby {
+                ctx.address().do_send(server_msg::LobbyJoin {
                     player_id: msg.player_id,
                     lobby_id: msg.lobby_id,
                 });
@@ -61,7 +61,7 @@ impl Handler<JoinLobby> for Server {
         let lobbies = self.get_lobby_overviews();
         for player_info in self.players.values() {
             if player_info.current_lobby.is_none() {
-                player_info.addr.do_send(player_msg::LobbyList {
+                player_info.addr.do_send(player_msg::LobbyListRes {
                     lobbies: lobbies.clone(),
                 });
             }

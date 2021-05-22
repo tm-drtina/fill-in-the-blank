@@ -7,17 +7,17 @@ use std::collections::hash_map::Entry;
 
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct DestroySession {
+pub struct PlayerDestroy {
     pub session_id: Uuid,
 }
 
-impl Handler<DestroySession> for Server {
+impl Handler<PlayerDestroy> for Server {
     type Result = ();
 
-    fn handle(&mut self, msg: DestroySession, ctx: &mut Context<Self>) -> Self::Result {
+    fn handle(&mut self, msg: PlayerDestroy, ctx: &mut Context<Self>) -> Self::Result {
         if let Entry::Occupied(player_info_entry) = self.players.entry(msg.session_id) {
             if player_info_entry.get().current_lobby.is_some() {
-                ctx.address().do_send(server_msg::LeaveLobby {
+                ctx.address().do_send(server_msg::LobbyLeave {
                     player_id: msg.session_id,
                 });
                 ctx.address().do_send(msg);
@@ -27,7 +27,7 @@ impl Handler<DestroySession> for Server {
             let player_info = player_info_entry.remove();
 
             debug!(
-                "Destroying session {}. Username: {}",
+                "Destroying session {}. Playername: {}",
                 msg.session_id, player_info.username,
             );
         } else {

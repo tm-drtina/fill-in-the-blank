@@ -8,24 +8,24 @@ use super::super::WebSocket;
 
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct JoinLobby {
+pub struct LobbyJoin {
     pub lobby_id: Uuid,
 }
 
-impl Handler<JoinLobby> for WebSocket {
+impl Handler<LobbyJoin> for WebSocket {
     type Result = ();
 
-    fn handle(&mut self, msg: JoinLobby, ctx: &mut Self::Context) -> Self::Result {
-        debug!("Handling JoinLobby message: {}", msg.lobby_id);
+    fn handle(&mut self, msg: LobbyJoin, ctx: &mut Self::Context) -> Self::Result {
+        debug!("Handling LobbyJoin message: {}", msg.lobby_id);
         if let Some(player) = &self.player {
-            player.do_send(player_msg::JoinLobby {
+            player.do_send(player_msg::LobbyJoin {
                 lobby_id: msg.lobby_id,
             });
         } else {
-            error!("Got JoinLobby message, but user is not logged in!");
+            error!("Got LobbyJoin message, but user is not logged in!");
             ctx.address().do_send(messages::Error::new(
                 messages::ErrorType::Disconnected,
-                "Got JoinLobby message, but user is not logged in!",
+                "Got LobbyJoin message, but user is not logged in!",
             ));
         }
     }

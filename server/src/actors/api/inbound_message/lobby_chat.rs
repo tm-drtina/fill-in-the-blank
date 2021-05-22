@@ -17,7 +17,7 @@ impl Handler<LobbyChat> for WebSocket {
     fn handle(&mut self, msg: LobbyChat, ctx: &mut Self::Context) -> Self::Result {
         debug!("Handling LobbyChat message: {}", msg.message);
         if let Some(player) = &self.player {
-            player.do_send(player_msg::SendLobbyChat {
+            player.do_send(player_msg::LobbyChatSend {
                 message: msg.message,
             });
         } else {

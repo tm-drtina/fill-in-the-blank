@@ -44,33 +44,33 @@ export type WebSocketMessageType = ReconnectMessage | ConnectMessage | LogoutMes
 
 export const WebSocketMessage = {
   reconnect: (sessionId: string): ReconnectMessage => ({
-    action: 'Reconnect',
+    action: 'PlayerReconnect',
     session_id: sessionId,
   }),
   connect: (username: string): ConnectMessage => ({
-    action: 'Connect',
+    action: 'PlayerConnect',
     username,
   }),
   logout: (): LogoutMessage => ({
-    action: 'Logout',
+    action: 'PlayerLogout',
   }),
   globalChat: (message: string): GlobalChatMessage => ({
     action: 'GlobalChat',
     message,
   }),
   createLobby: (name: string): CreateLobbyMessage => ({
-    action: 'CreateLobby',
+    action: 'LobbyCreate',
     name,
   }),
   joinLobby: (lobbyId: string): JoinLobbyMessage => ({
-    action: 'JoinLobby',
+    action: 'LobbyJoin',
     lobby_id: lobbyId,
   }),
   leaveLobby: (): LeaveLobbyMessage => ({
-    action: 'LeaveLobby',
+    action: 'LobbyLeave',
   }),
   listLobbies: (): ListLobbiesMessage => ({
-    action: 'ListLobbies',
+    action: 'LobbyList',
   }),
   lobbyChat: (message: string): LobbyChatMessage => ({
     action: 'LobbyChat',

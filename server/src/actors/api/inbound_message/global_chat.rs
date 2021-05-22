@@ -17,7 +17,7 @@ impl Handler<GlobalChat> for WebSocket {
     fn handle(&mut self, msg: GlobalChat, ctx: &mut Self::Context) -> Self::Result {
         debug!("Handling GlobalChat message: {}", msg.message);
         if let Some(player) = &self.player {
-            player.do_send(player_msg::SendGlobalChat {
+            player.do_send(player_msg::GlobalChatSend {
                 message: msg.message,
             });
         } else {

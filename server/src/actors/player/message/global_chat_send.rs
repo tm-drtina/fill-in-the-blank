@@ -5,14 +5,14 @@ use super::super::Player;
 
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct SendGlobalChat {
+pub struct GlobalChatSend {
     pub message: String,
 }
 
-impl Handler<SendGlobalChat> for Player {
+impl Handler<GlobalChatSend> for Player {
     type Result = ();
 
-    fn handle(&mut self, msg: SendGlobalChat, _ctx: &mut Context<Self>) -> Self::Result {
+    fn handle(&mut self, msg: GlobalChatSend, _ctx: &mut Context<Self>) -> Self::Result {
         self.server
             .do_send(server_msg::GlobalChatBroadcast::user_message(
                 self.username.clone(),
