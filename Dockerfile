@@ -1,5 +1,5 @@
 # Build server
-FROM rust:1.51 as build-server
+FROM rust:1.58 as build-server
 WORKDIR /app
 
 COPY ./server /app
@@ -18,7 +18,7 @@ RUN yarn build
 
 
 # Final release
-FROM gcr.io/distroless/cc-debian10
+FROM gcr.io/distroless/cc
 WORKDIR /app
 
 ENV PORT=80
