@@ -13,13 +13,11 @@ const Home: React.FC = () => {
   const webSocket = useWebSocket();
 
   return (
-    <>
-      <Wrapper>
-        <LobbyList/>
-        <CreateLobby/>
-        <Chat messages={globalMessages} sendMessage={msg => webSocket.send(WebSocketMessage.globalChat(msg))}/>
-      </Wrapper>
-    </>
+    <Wrapper>
+      <LobbyList/>
+      <CreateLobby/>
+      <Chat messages={globalMessages} sendMessage={msg => webSocket.send(WebSocketMessage.globalChat(msg))}/>
+    </Wrapper>
   );
 };
 
