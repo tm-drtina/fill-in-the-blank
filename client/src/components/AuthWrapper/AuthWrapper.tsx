@@ -1,5 +1,5 @@
-import { Backdrop, CircularProgress } from '@material-ui/core';
-import React, { useEffect } from 'react';
+import { Backdrop, CircularProgress } from '@mui/material';
+import { useEffect } from 'react';
 import { useStoreActions, useStoreState } from '../../store/hooks';
 import { UserStatus } from '../../store/user';
 import { getItem, USER_SESSION_UUID_KEY } from '../../utils/storage';

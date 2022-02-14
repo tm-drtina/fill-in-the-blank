@@ -1,7 +1,7 @@
-import { Backdrop, Button, CircularProgress } from '@material-ui/core';
+import { Backdrop, Button, CircularProgress } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import React, { useCallback, useEffect } from 'react';
-import { useHistory, useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { Link as RouterLink } from 'react-router-dom';
 import Chat from '../../components/Chat/Chat';
 
@@ -23,12 +23,12 @@ const Lobby: React.FC = () => {
   const webSocket = useWebSocket();
   const { enqueueSnackbar } = useSnackbar();
   const { id } = useParams<TParams>();
-  const { push } = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (status === LobbyStatus.NO_LOBBY) {
       setStatus(LobbyStatus.JOINING);
-      webSocket.send(WebSocketMessage.joinLobby(id));
+      webSocket.send(WebSocketMessage.joinLobby(id!!)); // TODO: fix/remove assertion
     }
   }, [id, webSocket, status, setStatus]);
 
@@ -36,9 +36,9 @@ const Lobby: React.FC = () => {
     if (status === LobbyStatus.FAILED) {
       enqueueSnackbar(failureReason, { variant: 'error' });
       resetLobby();
-      push('/');
+      navigate('/');
     }
-  }, [status, failureReason, enqueueSnackbar, push, resetLobby]);
+  }, [status, failureReason, enqueueSnackbar, navigate, resetLobby]);
 
   const sendMessage = useCallback(msg => {
     webSocket.send(WebSocketMessage.lobbyChat(msg));

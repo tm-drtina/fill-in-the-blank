@@ -1,36 +1,28 @@
-import { createStyles, makeStyles, Theme } from '@material-ui/core';
+import { styled } from '@mui/material';
 import React from 'react';
 
 import Loader from './Loader';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      zIndex: 9999,
-    },
-  })
-);
+const GlobalWrapper = styled('div')(() => ({
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  width: '100%',
+  zIndex: 9999,
+}));
 
 type Props = {
   loaders: number;
 };
 
-const LoaderGlobal: React.FC<Props> = ({ loaders }) => {
-  const { root } = useStyles();
-
-  return (
-    <>
-      {loaders > 0 && (
-        <div className={root}>
-          <Loader />
-        </div>
-      )}
-    </>
-  );
-};
+const LoaderGlobal: React.FC<Props> = ({ loaders }) => (
+  <>
+    {loaders > 0 && (
+      <GlobalWrapper>
+        <Loader />
+      </GlobalWrapper>
+    )}
+  </>
+);
 
 export default LoaderGlobal;

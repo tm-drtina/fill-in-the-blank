@@ -38,7 +38,7 @@ impl Server {
         for player_id in &lobby_info.players {
             match self.players.get(player_id) {
                 Some(player_info) => {
-                    players.push(&player_info);
+                    players.push(player_info);
                 }
                 None => {
                     error!("Player session '{}' not found", player_id);

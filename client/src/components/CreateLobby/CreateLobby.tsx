@@ -1,7 +1,7 @@
-import { Backdrop, Button, CircularProgress, TextField } from '@material-ui/core';
+import { Backdrop, Button, CircularProgress, TextField } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import React, { useCallback, useEffect, useState } from 'react';
-import { useHistory } from 'react-router';
+import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useStoreActions, useStoreState } from '../../store/hooks';
 import { LobbyStatus } from '../../store/lobby';
 import { useWebSocket, WebSocketMessage } from '../../websocket';
@@ -17,7 +17,7 @@ const CreateLobby = () => {
 
   const webSocket = useWebSocket();
   const { enqueueSnackbar } = useSnackbar();
-  const { push } = useHistory();
+  const navigate = useNavigate();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [lobbyName, setLobbyName] = useState('');
@@ -61,9 +61,9 @@ const CreateLobby = () => {
       resetLobby();
     }
     if (lobbyStatus === LobbyStatus.JOINED && detail !== undefined) {
-      push(`/lobby/${detail.lobby_id}`)
+      navigate(`/lobby/${detail.lobby_id}`);
     }
-  }, [lobbyStatus, resetLobby, enqueueSnackbar, failureReason, push, detail]);
+  }, [lobbyStatus, resetLobby, enqueueSnackbar, failureReason, navigate, detail]);
 
   return (
     <>

@@ -1,3 +1,5 @@
+#![allow(clippy::module_inception)]
+
 use actix::{Actor, Addr};
 use actix_files as fs;
 use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer};

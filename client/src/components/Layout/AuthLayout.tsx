@@ -1,4 +1,4 @@
-import { Button, TextField } from '@material-ui/core';
+import { Button, TextField } from '@mui/material';
 import React, { useCallback, useState } from 'react';
 import { useStoreActions, useStoreState } from '../../store/hooks';
 import { useWebSocket, WebSocketMessage } from '../../websocket';
