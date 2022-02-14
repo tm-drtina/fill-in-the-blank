@@ -1,4 +1,4 @@
-import { Box, Button } from '@material-ui/core';
+import { Box, Button } from '@mui/material';
 import React, { useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useStoreActions, useStoreState } from '../../store/hooks';

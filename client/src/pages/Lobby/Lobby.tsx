@@ -1,4 +1,4 @@
-import { Backdrop, Button, CircularProgress } from '@material-ui/core';
+import { Backdrop, Button, CircularProgress } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import React, { useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';

@@ -1,5 +1,4 @@
-import React from 'react';
-import { Typography, Box } from '@material-ui/core';
+import { Typography, Box } from '@mui/material';
 
 const Footer = () => {
   return (

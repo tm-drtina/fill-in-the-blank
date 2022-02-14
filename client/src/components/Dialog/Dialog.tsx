@@ -1,6 +1,9 @@
 import React from 'react';
-import Modal from '@material-ui/core/Modal';
-import { makeStyles, Theme, createStyles } from '@material-ui/core';
+import Modal from '@mui/material/Modal';
+import { Theme } from '@mui/material';
+
+import makeStyles from '@mui/styles/makeStyles';
+import createStyles from '@mui/styles/createStyles';
 
 interface IProps {
   open: boolean;

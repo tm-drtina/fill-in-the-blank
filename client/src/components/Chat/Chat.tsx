@@ -1,4 +1,4 @@
-import { Box, Button, TextField } from '@material-ui/core';
+import { Box, Button, TextField } from '@mui/material';
 import React, { KeyboardEvent, useState } from 'react';
 
 import Wrapper from '../../components/Wrapper/Wrapper';
