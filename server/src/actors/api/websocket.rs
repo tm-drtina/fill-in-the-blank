@@ -67,7 +67,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocket {
             Ok(ws::Message::Pong(_)) => {
                 self.hb = Instant::now();
             }
-            Ok(ws::Message::Text(text)) => match serde_json::from_str(text.as_str()) {
+            Ok(ws::Message::Text(text)) => match serde_json::from_slice(text.as_bytes()) {
                 Ok(msg) => self.handle_message(ctx, msg),
                 Err(_) => warn!("Unprocessable input '{}'", text),
             },

@@ -2,6 +2,7 @@
 
 use actix::{Actor, Addr};
 use actix_files as fs;
+use actix_web::web::Data;
 use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
 
@@ -38,7 +39,7 @@ async fn main() -> std::io::Result<()> {
             // enable logger
             .wrap(middleware::Logger::default())
             // provide server address
-            .data(server.clone())
+            .app_data(Data::new(server.clone()))
             // websocket route
             .service(web::resource("/ws").route(web::get().to(ws_index)))
             // static files
