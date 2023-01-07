@@ -40,7 +40,7 @@ const Lobby: React.FC = () => {
     }
   }, [status, failureReason, enqueueSnackbar, navigate, resetLobby]);
 
-  const sendMessage = useCallback(msg => {
+  const sendMessage = useCallback((msg: string) => {
     webSocket.send(WebSocketMessage.lobbyChat(msg));
   }, [webSocket]);
 
