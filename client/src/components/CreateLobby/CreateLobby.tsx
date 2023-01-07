@@ -33,7 +33,7 @@ const CreateLobby = () => {
     setModalOpen(false);
   }, [setModalOpen]);
 
-  const onSubmit = useCallback(event => {
+  const onSubmit = useCallback((event: React.FormEvent) => {
     event.preventDefault();
     if (lobbyName.trim().length === 0) {
       setError('Lobby name cannot be empty');
@@ -46,7 +46,7 @@ const CreateLobby = () => {
     setLobbyStatus(LobbyStatus.JOINING);
   }, [setModalOpen, setLobbyName, webSocket, lobbyName, setLobbyStatus]);
 
-  const onChange = useCallback(event => {
+  const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.value.trim().length === 0) {
       setError('Lobby name cannot be empty');
     } else {

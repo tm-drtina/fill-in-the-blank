@@ -3,8 +3,8 @@
 !client/public/**/*
 !client/src/**/*
 !client/package.json
+!client/package-lock.json
 !client/tsconfig.json
-!client/yarn.lock
 
 !server/src/*
 !server/Cargo.lock
