@@ -1,5 +1,5 @@
 # Build server
-FROM rust:1.66 as build-server
+FROM rust:1.69 as build-server
 WORKDIR /app
 
 COPY ./server /app
@@ -7,7 +7,7 @@ RUN cargo build --release --locked
 
 
 # Build client
-FROM node:18 as build-client
+FROM node:20 as build-client
 WORKDIR /client
 
 COPY ./client/package.json ./client/package-lock.json /client/
