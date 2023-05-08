@@ -2,9 +2,9 @@ name: Docker
 
 on:
   push:
-    # Publish `master` as Docker `dev` image.
+    # Publish `main` as Docker `dev` image.
     branches:
-      - master
+      - main
 
     # Publish `v1.2.3` tags as releases.
     tags:
@@ -114,7 +114,7 @@ jobs:
             LATEST_MINOR='0'
           fi
 
-          if [[ "$VERSION" == "master" ]]; then
+          if [[ "$VERSION" == "main" ]]; then
             TAGS+=("dev")
           else
             TAGS+=("v$VERSION")
