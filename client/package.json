@@ -6,7 +6,7 @@
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.10.8",
     "@mui/material": "^5.15.6",
-    "@types/react": "^18.2.48",
+    "@types/react": "^18.2.54",
     "@types/react-dom": "^18.2.18",
     "easy-peasy": "^6.0.4",
     "notistack": "^3.0.1",
