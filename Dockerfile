@@ -1,5 +1,5 @@
 # Build server
-FROM rust:1.69 as build-server
+FROM rust:1 as build-server
 WORKDIR /app
 
 COPY ./server /app
