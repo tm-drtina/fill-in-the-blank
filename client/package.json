@@ -5,7 +5,7 @@
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.10.8",
-    "@mui/material": "^5.15.13",
+    "@mui/material": "^5.15.14",
     "@types/react": "^18.2.69",
     "@types/react-dom": "^18.2.22",
     "easy-peasy": "^6.0.4",
