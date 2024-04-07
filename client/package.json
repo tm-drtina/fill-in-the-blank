@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.11.4",
-    "@emotion/styled": "^11.10.8",
+    "@emotion/styled": "^11.11.5",
     "@mui/material": "^5.15.14",
     "@types/react": "^18.2.73",
     "@types/react-dom": "^18.2.22",
